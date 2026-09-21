@@ -10,7 +10,7 @@
   <nav class="block bg-gray-800 relative">
     <ul class="navitems flex items-center justify-center h-full">
       {% if request.user.is_authenticated %}
-      <li><a href="/">Home</a></li>
+      <li><a href="/">Inicio</a></li>
       <li x-data="{ dropdownOpen: false }" class="relative">
         <a
           @click="dropdownOpen = !dropdownOpen"
@@ -37,19 +37,19 @@
           x-transition:enter-end="opacity-100 translate-y-0 scale-100"
         >
           <ul class="hoverlist [&>li>a]:justify-end">
-            <li><a href="{% url 'profile' %}">My Profile</a></li>
-            <li><a href="{% url 'profile-edit' %}">Edit Profile</a></li>
-            <li><a href="{% url 'profile-settings' %}">Settings</a></li>
-            <li><a href="{% url 'account_logout' %}">Log Out</a></li>
+            <li><a href="{% url 'profile' %}">Mi Perfil</a></li>
+            <li><a href="{% url 'profile-edit' %}">Editar Perfil</a></li>
+            <li><a href="{% url 'profile-settings' %}">Configuración</a></li>
+            <li><a href="{% url 'account_logout' %}">Cerrar Sesión</a></li>
           </ul>
         </div>
       </li>
 
       {% else %}
-      <li><a href="{% url 'account_login' %}">Login</a></li>
+      <li><a href="{% url 'account_login' %}">Iniciar Sesión</a></li>
       <li>
         <a href="{% url 'account_signup' %}?next={% url 'profile-onboarding' %}"
-          >Signup</a
+          >Registrarse</a
         >
       </li>
       {% endif %}

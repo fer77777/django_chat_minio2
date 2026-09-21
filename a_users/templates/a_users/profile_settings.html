@@ -2,23 +2,23 @@
 
 {% block content %}
 
-<h1 class="mb-8">Account Settings</h1>
+<h1 class="mb-8">Configuración de Cuenta</h1>
 
 <table class="w-full text-sm text-left text-gray-500">
     <tbody>
         <tr>
             <th scope="row" class="pt-4 pb-1 text-base font-bold text-gray-900">
-                Email address
+                Correo electrónico
             </th>
             <td id="email-address" class="pt-4 pb-1 px-6">
-                {% if user.email %}{{ user.email }}{% else %}No Email{% endif %}
+                {% if user.email %}{{ user.email }}{% else %}Sin correo{% endif %}
             </td>
             <td class="pt-4 pb-1 px-6">
                 <a id="email-edit" class="cursor-pointer font-medium text-blue-600 hover:underline"
                     hx-get="{% url 'profile-emailchange' %}"
                     hx-target="#email-address"
                     hx-swap="innerHTML" >
-                    Edit
+                    Editar
                 </a>
             </td>
         </tr>
@@ -27,27 +27,27 @@
             </th>
             <td class="px-6 pb-4">
                 {% if user.emailaddress_set.first.verified %}
-                <span class="text-green-500">Verified</span>{% else %}
-                <span class="text-amber-500">Not verified</span>
+                <span class="text-green-500">Verificado</span>{% else %}
+                <span class="text-amber-500">No verificado</span>
                 {% endif %}
             </td>
             <td class="px-6 pb-4">
                 <a href="{% url 'profile-emailverify' %}" class="font-medium text-blue-600 hover:underline">
-                    {% if not user.emailaddress_set.first.verified %}Verify{% endif %}
+                    {% if not user.emailaddress_set.first.verified %}Verificar{% endif %}
                 </a>
             </td>
         </tr>
 
         <tr class="border-b">
             <th scope="row" class="py-4 text-base font-bold text-gray-900">
-                Delete Account
+                Eliminar Cuenta
             </th>
             <td class="px-6 py-4">
-                Once deleted, account is gone. Forever.
+                Una vez eliminada, la cuenta se perderá permanentemente.
             </td>
             <td class="px-6 py-4">
                 <a href="{% url 'profile-delete' %}" class="font-medium text-red-600 hover:underline">
-                    Delete
+                    Eliminar
                 </a>
             </td>
         </tr>

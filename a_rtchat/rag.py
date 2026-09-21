@@ -30,6 +30,25 @@ class RagAnswer:
     sources: tuple[str, ...] = ()
 
 
+SYSTEM_PROMPT_ES = (
+    "Eres un asistente virtual inteligente, amigable y servicial. "
+    "Responde siempre en español latino de forma clara, natural, precisa y concisa. "
+    "Si te hacen una pregunta sobre los documentos proporcionados, básate en ellos. "
+    "Si te hacen una pregunta general o de conversación, responde amablemente en español latino."
+)
+
+TEXT_QA_TEMPLATE_STR = (
+    "Información de contexto:\n"
+    "---------------------\n"
+    "{context_str}\n"
+    "---------------------\n"
+    "Con base en el contexto anterior (y respondiendo amablemente si es una consulta general), "
+    "responde a la pregunta siempre en español latino de forma clara, precisa y directa.\n"
+    "Pregunta: {query_str}\n"
+    "Respuesta: "
+)
+
+
 class LocalRag:
     SOURCE_SUFFIXES = {
         ".csv",
@@ -58,10 +77,12 @@ class LocalRag:
         storage_dir: Path,
         *,
         ollama_base_url: str = "http://localhost:11434",
-        chat_model: str = "llama3.2",
+        chat_model: str = "llama3.2:1b",
         embed_model: str = "nomic-embed-text",
         similarity_top_k: int = 4,
-        request_timeout: float = 120.0,
+        request_timeout: float = 60.0,
+        num_ctx: int = 4096,
+        num_predict: int = 512,
     ) -> None:
         self.source_dir = Path(source_dir)
         self.markdown_dir = Path(markdown_dir)
@@ -73,6 +94,8 @@ class LocalRag:
         self.embed_model = embed_model
         self.similarity_top_k = similarity_top_k
         self.request_timeout = request_timeout
+        self.num_ctx = num_ctx
+        self.num_predict = num_predict
 
     @classmethod
     def from_settings(cls) -> "LocalRag":
@@ -85,18 +108,26 @@ class LocalRag:
             embed_model=settings.OLLAMA_EMBED_MODEL,
             similarity_top_k=settings.RAG_SIMILARITY_TOP_K,
             request_timeout=settings.OLLAMA_REQUEST_TIMEOUT,
+            num_ctx=settings.OLLAMA_NUM_CTX,
+            num_predict=settings.OLLAMA_NUM_PREDICT,
         )
 
     def answer(self, question: str) -> RagAnswer:
         try:
+            from llama_index.core.prompts import PromptTemplate
+
+            text_qa_template = PromptTemplate(TEXT_QA_TEMPLATE_STR)
             index = self._load_or_rebuild_index()
-            query_engine = index.as_query_engine(similarity_top_k=self.similarity_top_k)
+            query_engine = index.as_query_engine(
+                similarity_top_k=self.similarity_top_k,
+                text_qa_template=text_qa_template,
+            )
             response = query_engine.query(question)
         except LocalRagError:
             raise
         except ImportError as exc:
             raise LocalRagConfigurationError(
-                "Local RAG dependencies are not installed. Run pip install -r requirements.txt."
+                "Las dependencias de RAG local no están instaladas. Ejecuta pip install -r requirements.txt."
             ) from exc
         except Exception as exc:
             raise LocalRagError(str(exc)) from exc
@@ -107,8 +138,8 @@ class LocalRag:
         source_files = self._source_files()
         if not source_files:
             raise KnowledgeBaseEmpty(
-                f"No supported files found in {self.source_dir}. "
-                "Add PDF, Word, Excel, PowerPoint, Markdown, HTML, CSV, JSON, XML, ZIP, or TXT files."
+                f"No se encontraron archivos compatibles en {self.source_dir}. "
+                "Agrega archivos PDF, Word, Excel, PowerPoint, Markdown, HTML, CSV, JSON, XML, ZIP o TXT."
             )
 
         manifest = self._current_manifest(source_files)
@@ -143,7 +174,7 @@ class LocalRag:
             from markitdown import MarkItDown
         except ImportError as exc:
             raise LocalRagConfigurationError(
-                "MarkItDown is not installed. Run pip install -r requirements.txt."
+                "MarkItDown no está instalado. Ejecuta pip install -r requirements.txt."
             ) from exc
 
         if self.markdown_dir.exists():
@@ -157,14 +188,14 @@ class LocalRag:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             markdown_text = self._convert_source(source_path, converter)
             if not markdown_text.strip():
-                logger.warning("Skipping empty converted Markdown file: %s", source_path)
+                logger.warning("Omitiendo archivo Markdown convertido vacío: %s", source_path)
                 continue
             output_path.write_text(markdown_text, encoding="utf-8")
             markdown_files.append(output_path)
 
         if not markdown_files:
             raise KnowledgeBaseEmpty(
-                f"Supported files were found in {self.source_dir}, but no Markdown content could be read."
+                f"Se encontraron archivos compatibles en {self.source_dir}, pero no se pudo leer contenido en Markdown."
             )
 
         return markdown_files
@@ -176,7 +207,7 @@ class LocalRag:
         try:
             result = converter.convert(str(source_path))
         except Exception as exc:
-            raise LocalRagError(f"Could not convert {source_path.name} to Markdown: {exc}") from exc
+            raise LocalRagError(f"No se pudo convertir {source_path.name} a Markdown: {exc}") from exc
 
         return getattr(result, "text_content", None) or getattr(result, "markdown", "") or ""
 
@@ -194,13 +225,13 @@ class LocalRag:
             from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
         except ImportError as exc:
             raise LocalRagConfigurationError(
-                "Local RAG dependencies are not installed. Run pip install -r requirements.txt."
+                "Las dependencias de RAG local no están instaladas. Ejecuta pip install -r requirements.txt."
             ) from exc
 
         documents = SimpleDirectoryReader(input_files=[str(path) for path in markdown_files]).load_data()
         if not documents:
             raise KnowledgeBaseEmpty(
-                f"Markdown files were created in {self.markdown_dir}, but no text could be read."
+                f"Se crearon archivos Markdown en {self.markdown_dir}, pero no se pudo leer ningún texto."
             )
 
         index = VectorStoreIndex.from_documents(documents)
@@ -217,7 +248,7 @@ class LocalRag:
             from llama_index.core import StorageContext, load_index_from_storage
         except ImportError as exc:
             raise LocalRagConfigurationError(
-                "Local RAG dependencies are not installed. Run pip install -r requirements.txt."
+                "Las dependencias de RAG local no están instaladas. Ejecuta pip install -r requirements.txt."
             ) from exc
 
         storage_context = StorageContext.from_defaults(persist_dir=str(self.index_dir))
@@ -232,6 +263,9 @@ class LocalRag:
             model=self.chat_model,
             base_url=self.ollama_base_url,
             request_timeout=self.request_timeout,
+            system_prompt=SYSTEM_PROMPT_ES,
+            context_window=self.num_ctx,
+            additional_kwargs={"num_ctx": self.num_ctx, "num_predict": self.num_predict},
         )
         Settings.embed_model = OllamaEmbedding(
             model_name=self.embed_model,

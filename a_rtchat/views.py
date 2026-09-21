@@ -66,18 +66,53 @@ def _create_bot_message(chat_group: ChatGroup, question: str) -> GroupMessage:
 def _answer_question(question: str) -> str:
     try:
         answer = LocalRag.from_settings().answer(question)
-    except KnowledgeBaseEmpty as exc:
-        return str(exc)
+    except KnowledgeBaseEmpty:
+        # Sin documentos en knowledge_base: responder directamente con Ollama como chat general
+        return _answer_with_ollama_directly(question)
     except LocalRagConfigurationError as exc:
         return str(exc)
     except LocalRagError:
         return (
-            "I could not query the local knowledge base. "
-            "Check that Ollama is running and the configured models are installed."
+            "No pude procesar tu consulta. "
+            "Verifica que Ollama este en ejecucion y que los modelos configurados esten instalados."
         )
 
     if not answer.sources:
         return answer.text
 
     sources = ", ".join(answer.sources)
-    return f"{answer.text}\n\nSources: {sources}"
+    return f"{answer.text}\n\nFuentes: {sources}"
+
+
+def _answer_with_ollama_directly(question: str) -> str:
+    """Responde directamente usando Ollama como chat general cuando no hay documentos indexados."""
+    from django.conf import settings as django_settings
+    from .rag import SYSTEM_PROMPT_ES
+
+    try:
+        from llama_index.llms.ollama import Ollama
+
+        llm = Ollama(
+            model=django_settings.OLLAMA_CHAT_MODEL,
+            base_url=django_settings.OLLAMA_BASE_URL,
+            request_timeout=django_settings.OLLAMA_REQUEST_TIMEOUT,
+            system_prompt=SYSTEM_PROMPT_ES,
+            context_window=django_settings.OLLAMA_NUM_CTX,
+            additional_kwargs={
+                "num_ctx": django_settings.OLLAMA_NUM_CTX,
+                "num_predict": django_settings.OLLAMA_NUM_PREDICT,
+            },
+        )
+        response = llm.complete(question)
+        return str(response)
+    except ImportError:
+        return (
+            "Las dependencias de la IA no estan instaladas. "
+            "Ejecuta: pip install -r requirements.txt"
+        )
+    except Exception as exc:
+        return (
+            f"No pude conectarme al modelo de IA. "
+            f"Verifica que Ollama este en ejecucion con el modelo '{django_settings.OLLAMA_CHAT_MODEL}'. "
+            f"Detalle: {exc}"
+        )

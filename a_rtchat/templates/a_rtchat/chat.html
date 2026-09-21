@@ -9,12 +9,12 @@
       class="flex items-center justify-between border-b border-slate-800 bg-slate-950/80 px-5 py-3 text-sm"
     >
       <div>
-        <p class="mb-0 text-xs font-semibold uppercase tracking-wider text-slate-500">Local RAG</p>
-        <p class="mb-0 text-sm font-medium text-slate-100">Knowledge chat</p>
+        <p class="mb-0 text-xs font-semibold uppercase tracking-wider text-slate-500">RAG Local</p>
+        <p class="mb-0 text-sm font-medium text-slate-100">Chat de Conocimiento</p>
       </div>
       <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
         <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-        <span id="online-count"></span>online
+        <span id="online-count"></span>en línea
       </span>
     </div>
     <div id="chat_container" class="grow overflow-x-hidden overflow-y-auto px-4 py-5 sm:px-5">
@@ -34,7 +34,7 @@
         _="on htmx:afterRequest reset() me" >
           {% csrf_token %}
           {{ form.body }}
-          <button type="submit" class="!h-[3.25rem] w-full shrink-0 !rounded-xl !bg-emerald-500 !px-5 !py-0 text-sm font-semibold !shadow-none transition hover:!bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950 active:scale-[0.98] sm:w-auto">Send</button>
+          <button type="submit" class="!h-[3.25rem] w-full shrink-0 !rounded-xl !bg-emerald-500 !px-5 !py-0 text-sm font-semibold !shadow-none transition hover:!bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950 active:scale-[0.98] sm:w-auto">Enviar</button>
         </form>
     </div>
   </div>

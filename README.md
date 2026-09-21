@@ -1,237 +1,246 @@
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![LinkedIn][linkedin-shield]][linkedin-url1]
+# 🤖 Django Local RAG Chat (en Español)
 
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-    <h2 align="center">Django Local RAG Chat</h2>
-    <h5 align="center">Université Paris Cité - M2 - Digital Science (AIRE)</h5>
+Aplicación web de chat local con **RAG (Retrieval-Augmented Generation)** construida sobre **Django 5.2**, **LlamaIndex**, **MarkItDown** y **Ollama**. Permite realizar consultas sobre documentos propios (PDF, DOCX, XLSX, TXT, etc.) y mantener conversaciones de manera 100% local, privada y **completamente en español latino**.
 
-  <p align="center">
-    Dilan Croos
-    <br />
-    <a href="https://github.com/dilancroos/django_chat"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    ·
-    <a href="https://github.com/dilancroos/django_chat/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/dilancroos/django_chat/issues">Request Feature</a>
-  </p>
-</div>
+---
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li><a href="#about-the-project">About The Project</a></li>
-    <li><a href="#getting-started">Getting Started</a></li>
-    <ul>
-        <li><a href="#requirements">Requirements</a></li>
-        <li><a href="#setup">Setup</a></li>
-        <li><a href="#knowledge-base">Knowledge Base</a></li>
-        <li><a href="#run">Run</a></li>
-        <li><a href="#configuration">Configuration</a></li>
-        <li><a href="#tests">Tests</a></li>
-    </ul>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
+## 🌎 Idioma y Configuración en Español
 
-<!-- ABOUT THE PROJECT -->
+- **Interfaz Web:** Todos los menús, formularios y mensajes están en **español** (`LANGUAGE_CODE = 'es'`).
+- **IA en español:** El modelo responde siempre de forma natural y clara en **español latino**.
+- **Sin documentos obligatorios:** Puedes chatear normalmente con la IA sin tener archivos en `knowledge_base/`. Si hay documentos, la IA los usa para responder con más precisión.
 
-## About the Project
+---
 
-A local Django chat app that answers questions from files you place in a local
-knowledge-base folder. Source files are converted to Markdown with Microsoft's
-MarkItDown first, then the app indexes only the generated Markdown files. The
-app uses Ollama for local chat and embedding models, so it does not need a paid
-LLM API after installation.
+## 📋 Requisitos Previos
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+1. **Python:** Versión `3.11` o superior (verificado con Python 3.12).
+2. **Ollama:** Descargar desde [ollama.com/download](https://ollama.com/download) o instalar con:
+   ```powershell
+   winget install Ollama.Ollama
+   ```
+3. **Git:** Para clonar el repositorio.
 
-<!-- GETTING STARTED -->
+---
 
-## Getting Started
+## 🚀 Guía de Instalación Paso a Paso
 
-To get a local copy up and running follow these simple steps.
-
-## Requirements
-
-- Python 3.11 or newer
-- Ollama running locally
-
-Install Ollama from <https://ollama.com/download>, then pull the default models:
-
-```sh
-ollama pull llama3.2
-ollama pull nomic-embed-text
+### 1. Clonar el Repositorio
+```bash
+git clone https://github.com/dilancroos/django_chat.git
+cd django_chat
 ```
 
-## Setup
+---
 
-Clone the repo
+### 2. Crear y Activar el Entorno Virtual
 
-```sh
- git clone git@github.com:dilancroos/django_chat.git
- cd django_chat
-```
+- **En Windows (PowerShell):**
+  ```powershell
+  python -m venv .venv
+  .venv\Scripts\Activate.ps1
+  ```
+  > Si PowerShell bloquea la ejecución de scripts, ejecuta primero:
+  > ```powershell
+  > Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  > ```
 
-Create and activate a virtual environment:
+- **En Windows (CMD):**
+  ```cmd
+  python -m venv .venv
+  .venv\Scripts\activate.bat
+  ```
 
-```sh
-python3 -m venv .venv
-source .venv/bin/activate
-```
+- **En Linux / macOS:**
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  ```
 
-Install dependencies:
+---
 
-```sh
+### 3. Instalar Dependencias
+Con el entorno virtual activado:
+```bash
 pip install -r requirements.txt
 ```
 
-Create an environment file:
+---
 
-```sh
-cp envtemp .env
-```
+### 4. Configurar las Variables de Entorno (`.env`)
+Copia la plantilla `envtemp` a un nuevo archivo `.env`:
 
-Run the database migrations and create a user:
+- **En Windows (PowerShell):**
+  ```powershell
+  Copy-Item envtemp .env
+  ```
+- **En Linux / macOS:**
+  ```bash
+  cp envtemp .env
+  ```
 
-```sh
-python manage.py migrate
-python manage.py makemigrations
-```
-
-again
-
-```sh
-python manage.py migrate
-```
-
-```sh
-python manage.py createsuperuser
-```
-
-## Knowledge Base
-
-Put source files in `knowledge_base/`. The app converts them into Markdown in
-`knowledge_markdown/`, then indexes only those generated `.md` files.
-
-Supported first-version source file types are:
-
-- PDF
-- Word
-- PowerPoint
-- XLS and XLSX
-- CSV
-- Markdown
-- TXT
-- HTML
-- JSON and XML
-- ZIP
-
-The app checks this folder when you send a chat message. If files changed, it
-converts the files into Markdown, then rebuilds the local index in
-`rag_storage/` before answering.
-
-You can rebuild the index manually:
-
-```sh
-python manage.py rebuild_rag_index
-```
-
-To skip rebuilding when the stored manifest is current:
-
-```sh
-python manage.py rebuild_rag_index --skip-unchanged
-```
-
-## Run
-
-Start Ollama, then start Django:
-
-```sh
-python manage.py runserver
-```
-
-Open <http://127.0.0.1:8000>, sign in, and ask questions about the files in
-`knowledge_base/`. Do not edit `knowledge_markdown/` manually; it is generated
-from the source folder.
-
-The app automatically creates the `ai-chat` chat group and `botty` bot user the
-first time a chat message is sent.
-
-## Configuration
-
-These settings can be changed in `.env`:
-
-```sh
+Contenido por defecto de `.env`:
+```ini
+DJANGO_SECRET_KEY=django-insecure-local-dev-key-change-me
 OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_CHAT_MODEL=llama3.2
+OLLAMA_CHAT_MODEL=llama3.2:1b
 OLLAMA_EMBED_MODEL=nomic-embed-text
 RAG_SOURCE_DIR=knowledge_base
 RAG_MARKDOWN_DIR=knowledge_markdown
 RAG_STORAGE_DIR=rag_storage
 ```
 
-## Tests
+> **Nota:** Se recomienda usar `llama3.2:1b` (modelo liviano de 1B parámetros) en lugar de `llama3.2` (3B), ya que el modelo grande puede fallar en GPUs con poca VRAM.
 
-```sh
-python manage.py test
+---
+
+### 5. Configurar e Iniciar Ollama
+
+Asegúrate de que Ollama esté instalado y en ejecución, luego descarga los modelos:
+
+```powershell
+ollama pull llama3.2:1b
+ollama pull nomic-embed-text
 ```
 
-<!-- CONTACT -->
+> **⚠️ Problema frecuente en Windows:** Si la terminal no reconoce el comando `ollama` después de instalarlo, es porque el `PATH` no se actualizó en la sesión actual. Solución: actualiza el PATH en esa misma terminal con:
+> ```powershell
+> $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+> ```
+> O simplemente **abre una nueva terminal** y vuelve a intentarlo.
 
-## Contact
+#### ¿Error de memoria de GPU? (CUDA out of memory)
+Si Ollama falla con un mensaje de `out of memory`, tienes dos opciones:
 
-Dilan Croos - mail@dilancroos.com
+**Opción A (Recomendada): Usar el modelo liviano**
+```powershell
+ollama pull llama3.2:1b
+```
+Y en `.env` cambia la línea a: `OLLAMA_CHAT_MODEL=llama3.2:1b`
 
-Project Link: [https://github.com/dilancroos/django_chat](https://github.com/dilancroos/django_chat)
+**Opción B: Forzar ejecución en CPU (sin GPU)**
+```powershell
+$env:OLLAMA_NUM_GPU=0
+```
+Luego reinicia Ollama.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+#### Eliminar un modelo que ya no necesitas
+Si descargaste el modelo grande y ya no lo usas, puedes liberarlo del disco:
+```powershell
+ollama rm llama3.2
+```
 
-<!-- ACKNOWLEDGMENTS -->
+---
 
-## Acknowledgments
+### 6. Ejecutar las Migraciones de Base de Datos
+```bash
+python manage.py migrate
+```
 
-- Django chat template by [Andreas Jud](https://www.youtube.com/@ajudmeister)
+*(Opcional)* Crear un superusuario para el panel de administración (`/admin`):
+```bash
+python manage.py createsuperuser
+```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+---
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+### 7. Agregar Documentos a la Base de Conocimiento (Opcional)
+La IA puede responder **sin documentos** (conocimiento general). Si quieres que responda sobre tus propios archivos, colócalos en:
+```
+knowledge_base/
+```
 
-[contributors-shield]: https://img.shields.io/github/contributors/dilancroos/django_chat.svg?style=for-the-badge
-[contributors-url]: https://github.com/dilancroos/django_chat/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/dilancroos/django_chat.svg?style=for-the-badge
-[forks-url]: https://github.com/dilancroos/django_chat/network/members
-[stars-shield]: https://img.shields.io/github/stars/dilancroos/django_chat.svg?style=for-the-badge
-[stars-url]: https://github.com/dilancroos/django_chat/stargazers
-[issues-shield]: https://img.shields.io/github/issues/dilancroos/django_chat.svg?style=for-the-badge
-[issues-url]: https://github.com/dilancroos/django_chat/issues
-[license-shield]: https://img.shields.io/github/license/dilancroos/django_chat.svg?style=for-the-badge
-[license-url]: https://github.com/dilancroos/django_chat/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url1]: https://linkedin.com/in/antondilancrooswarnakulasuriya
-[product-screenshot]: images/screenshot.png
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com
+Formatos compatibles: `.pdf`, `.docx`, `.xlsx`, `.xls`, `.pptx`, `.csv`, `.txt`, `.md`, `.html`, `.json`, `.xml`, `.zip`, `.epub`.
+
+El sistema convierte automáticamente los documentos a Markdown con **MarkItDown** y los indexa en `rag_storage/`.
+
+---
+
+### 8. Iniciar el Servidor de Desarrollo
+```bash
+python manage.py runserver
+```
+
+Abre tu navegador web en:
+👉 **[http://localhost:8000](http://localhost:8000)**
+
+---
+
+## 💬 Modos de Respuesta de la IA
+
+| Situación | Comportamiento |
+| :--- | :--- |
+| `knowledge_base/` **vacía** | La IA responde con su conocimiento general en español |
+| `knowledge_base/` **con archivos** | La IA busca en tus documentos y responde citando las fuentes |
+
+---
+
+## 🛠️ Estructura del Proyecto
+
+- `a_core/`: Configuración principal de Django (`settings.py`, `urls.py`).
+- `a_rtchat/`: Lógica del chat y flujo RAG con LlamaIndex y prompts en español.
+- `a_users/`: Gestión de perfiles y usuarios.
+- `a_home/`: Vistas de inicio.
+- `knowledge_base/`: Carpeta donde colocar los documentos fuente a indexar.
+- `knowledge_markdown/`: Documentos convertidos a Markdown.
+- `rag_storage/`: Índice vectorial generado por LlamaIndex.
+- `templates/` & `static/`: Plantillas HTML y archivos estáticos.
+
+---
+
+## 🧪 Verificar que todo funciona
+
+```bash
+python manage.py check
+```
+
+---
+
+## ⚡ Optimización de Velocidad (Reducir Tiempo de Respuesta)
+
+Si la IA tarda mucho en responder (ej. más de 30-60 segundos), se debe a alguno de estos factores:
+
+1. **Tamaño del Modelo (El factor principal):**
+   - El modelo `llama3.2` (3B) requiere mucha memoria. Si no cabe en la tarjeta gráfica (GPU), se ejecuta en el procesador (CPU) y puede tardar de 1 a 3 minutos por mensaje.
+   - **Solución:** Usar `llama3.2:1b` en tu archivo `.env`. Al ser de 1B de parámetros, responde en **pocos segundos** (3-10x más rápido).
+
+2. **Carga inicial en memoria (Cold Start):**
+   - El **primer mensaje** tras iniciar Ollama tarda unos segundos extra porque debe cargar los pesos del modelo del disco a la memoria RAM/VRAM. Los mensajes siguientes son mucho más rápidos.
+
+3. **Aceleración por GPU:**
+   - Si tu equipo cuenta con tarjeta gráfica dedicada (NVIDIA / AMD), asegúrate de que Ollama no tenga forzado `$env:OLLAMA_NUM_GPU=0`. `llama3.2:1b` cabe perfectamente en cualquier GPU de 2GB a 4GB+ y responderá casi instantáneamente.
+
+---
+
+## 💡 Solución de Problemas Frecuentes
+
+1. **`ollama` no se reconoce como comando después de instalar:**
+   - Actualiza el PATH en la terminal actual:
+     ```powershell
+     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+     ```
+   - O abre una nueva ventana de terminal.
+
+2. **Error de memoria de GPU (`CUDA out of memory`):**
+   - Usa el modelo liviano: `ollama pull llama3.2:1b` y cambia `.env` a `OLLAMA_CHAT_MODEL=llama3.2:1b`.
+   - O fuerza CPU: `$env:OLLAMA_NUM_GPU=0` y reinicia Ollama.
+
+3. **La IA tarda mucho en responder (2-3 minutos):**
+   - Asegúrate de tener configurado `OLLAMA_CHAT_MODEL=llama3.2:1b` en tu archivo `.env`.
+   - Reinicia el servidor Django (`python manage.py runserver`).
+   - El modelo `1b` es ligero y reduce el tiempo a solo unos segundos.
+
+4. **Error de conexión con Ollama (`Connection Refused`):**
+   - Verifica que la app Ollama esté abierta, o ejecuta `ollama serve` en una terminal aparte.
+
+5. **Modelo no encontrado (`model not found`):**
+   - Ejecuta `ollama pull llama3.2:1b` y `ollama pull nomic-embed-text`.
+
+6. **Restricción de scripts en PowerShell al activar `.venv`:**
+   - Ejecuta: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`
+
+7. **Liberar espacio eliminando modelos no usados:**
+   ```powershell
+   ollama rm llama3.2
+   ```
+
