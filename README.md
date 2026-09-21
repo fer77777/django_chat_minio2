@@ -83,7 +83,7 @@ Contenido por defecto de `.env`:
 ```ini
 DJANGO_SECRET_KEY=django-insecure-local-dev-key-change-me
 OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_CHAT_MODEL=llama3.2:1b
+OLLAMA_CHAT_MODEL=qwen2.5:1.5b
 OLLAMA_EMBED_MODEL=nomic-embed-text
 RAG_SOURCE_DIR=knowledge_base
 RAG_MARKDOWN_DIR=knowledge_markdown
@@ -116,7 +116,7 @@ Si Ollama falla con un mensaje de `out of memory`, tienes dos opciones:
 ```powershell
 ollama pull llama3.2:1b
 ```
-Y en `.env` cambia la línea a: `OLLAMA_CHAT_MODEL=llama3.2:1b`
+Y en `.env` cambia la línea a: `OLLAMA_CHAT_MODEL=qwen2.5:1.5b`
 
 **Opción B: Forzar ejecución en CPU (sin GPU)**
 ```powershell
@@ -222,11 +222,11 @@ Si la IA tarda mucho en responder (ej. más de 30-60 segundos), se debe a alguno
    - O abre una nueva ventana de terminal.
 
 2. **Error de memoria de GPU (`CUDA out of memory`):**
-   - Usa el modelo liviano: `ollama pull llama3.2:1b` y cambia `.env` a `OLLAMA_CHAT_MODEL=llama3.2:1b`.
+   - Usa el modelo liviano: `ollama pull llama3.2:1b` y cambia `.env` a `OLLAMA_CHAT_MODEL=qwen2.5:1.5b`.
    - O fuerza CPU: `$env:OLLAMA_NUM_GPU=0` y reinicia Ollama.
 
 3. **La IA tarda mucho en responder (2-3 minutos):**
-   - Asegúrate de tener configurado `OLLAMA_CHAT_MODEL=llama3.2:1b` en tu archivo `.env`.
+   - Asegúrate de tener configurado `OLLAMA_CHAT_MODEL=qwen2.5:1.5b` en tu archivo `.env`.
    - Reinicia el servidor Django (`python manage.py runserver`).
    - El modelo `1b` es ligero y reduce el tiempo a solo unos segundos.
 

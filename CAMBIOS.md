@@ -105,9 +105,9 @@ def _answer_with_ollama_directly(question: str) -> str:
         return f"Error al procesar la consulta con la IA: {exc}"
 ```
 
-### 3.2 Funcionalidad 2: Optimizacion de Rendimiento y Soporte de Modelo Liviano (`llama3.2:1b`)
-- **Problema encontrado:** El modelo por defecto de 3B sobrepasaba la memoria grafica y tardaba entre 3 y 4 minutos por respuesta en CPU.
-- **Modificacion implementada:** Configure soporte para `llama3.2:1b` en el archivo `.env`, limitando ademas el contexto (`num_ctx`) y la cantidad de tokens (`num_predict`), logrando reducir el tiempo de respuesta a menos de un minuto.
+### 3.2 Funcionalidad 2: Optimizacion de Rendimiento y Soporte del Modelo Ligero (`qwen2.5:1.5b`)
+- **Problema encontrado:** El modelo por defecto de 3B sobrepasaba la memoria grafica, tardaba entre 3 y 4 minutos por respuesta en CPU o daba timeout.
+- **Modificacion implementada:** Configure soporte para `qwen2.5:1.5b` en el archivo `.env`, limitando ademas el contexto (`num_ctx = 2048`), la cantidad de tokens (`num_predict = 80`) y el timeout (`request_timeout = 360.0`), logrando reducir el tiempo de respuesta a menos de un minuto con total estabilidad.
 
 ---
 
@@ -118,7 +118,7 @@ def _answer_with_ollama_directly(question: str) -> str:
 | `a_core/settings.py` | Modificado | Configuracion de idioma en espanol (`LANGUAGE_CODE = 'es'`). |
 | `a_rtchat/rag.py` | Modificado | Prompts en espanol y plantillas de respuesta. |
 | `a_rtchat/views.py` | Modificado | Implementacion del chat directo sin documentos y manejo de errores. |
-| `.env` / `envtemp` | Modificado | Parametros configurados para el modelo liviano `llama3.2:1b`. |
-| `README.md` | Modificado | Documentacion traducida al espanol y guia de optimizacion. |
+| `.env` / `envtemp` | Modificado | Parametros configurados para el modelo liviano `qwen2.5:1.5b`. |
+| `README.md` | Modificado | Documentacion traducida al espanol y guia de optimizacion con `qwen2.5:1.5b`. |
 | `CAMBIOS.md` | Creado | Registro de modificaciones realizadas. |
 | `informe.md` | Creado | Informe tecnico en formato Markdown. |

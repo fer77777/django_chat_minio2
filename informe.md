@@ -39,8 +39,8 @@ Luego instale Ollama en el sistema y descargue los modelos base para el funciona
 # Instalacion de Ollama
 curl -fsSL https://ollama.com/install.sh | sh
 
-# Descarga del modelo de chat y de embeddings
-ollama pull llama3.2:1b
+# Descarga del modelo de chat optimizado y de embeddings
+ollama pull qwen2.5:1.5b
 ollama pull nomic-embed-text
 ```
 
@@ -73,9 +73,10 @@ Tambien traduje los formularios, botones de envio, mensajes de error y avisos de
 ![Interfaz traducida al espanol](capturas/02_interfaz_espanol.png)  
 _Figura 2.1: Vista principal de la aplicacion con la interfaz, menus y formularios completamente en espanol._
 
+### 2.2 Traduccion y Actualizacion de la Documentacion
+Traduje todo el archivo `README.md` al espanol y agregue explicaciones paso a paso de como instalarlo, como configurar las variables de entorno en el archivo `.env` y recomendaciones tecnicas para mejorar el rendimiento con `qwen2.5:1.5b`.
 
-
-### 2.2 Configuracion de Prompts en Espanol
+### 2.3 Configuracion de Prompts en Espanol
 Para evitar que la IA respondiera en ingles, configure el System Prompt y la plantilla de preguntas y respuestas en `a_rtchat/rag.py` para obligar al modelo a responder en espanol latino:
 
 ```python
@@ -114,8 +115,8 @@ def _answer_question(question: str) -> str:
 ![Prueba de chat general sin documentos](capturas/04_chat_general_sin_documentos.png)  
 _Figura 3.1: Demostracion de la IA respondiendo una pregunta general sin necesidad de tener documentos cargados._
 
-### 3.2 Funcionalidad 2: Optimizacion de Rendimiento y Soporte de Modelo Liviano (`1b`)
-- **Que hice:** Integre un soporte para el modelo liviano `llama3.2:1b` y configure limites de tokens y contexto (`num_predict` y `num_ctx`) en el archivo `.env`. Esto permitio que el proyecto se ejecute de forma rapida y sin saturar la memoria RAM.
+### 3.2 Funcionalidad 2: Optimizacion de Rendimiento y Soporte del Modelo Ligero (`qwen2.5:1.5b`)
+- **Que hice:** Integre soporte para el modelo liviano `qwen2.5:1.5b` y configure limites de tokens (`num_predict = 80`), ventana de contexto (`num_ctx = 2048`) y tiempo de espera (`request_timeout = 360.0`) en el archivo `.env`. Esto permitio que el proyecto se ejecute de forma rapida y sin saturar la memoria RAM.
 - **Archivos modificados:** `.env`, `a_core/settings.py`, `a_rtchat/views.py`.
 
 ![Respuesta rapida con modelo optimizado](capturas/05_respuesta_optimizada.png)  
@@ -128,15 +129,15 @@ _Figura 3.2: Medicion de tiempos de respuesta reducidos con el modelo configurad
 ### Dificultades que tuve y como las resolvi
 
 1. **Problema de lentitud y falta de memoria (VRAM):**
-   Al inicio probe el modelo `llama3.2` de 3B parametros, pero me dio error de memoria grafica (`cudaMalloc failed: out of memory`). Al no entrar en la memoria de la tarjeta de video, el sistema paso a procesar todo con el procesador (CPU), lo que provocaba que la IA tardara entre 3 y 4 minutos en responder una simple pregunta.
-   Para solucionar esto, cambie la configuracion al modelo `llama3.2:1b` (1B parametros) y limite la cantidad de tokens de salida. Con este ajuste, logre reducir el tiempo de respuesta de 4 minutos a menos de un minuto, haciendo que la conversacion sea fluida y utilizable.
+   Al inicio probe el modelo `llama3.2` de 3B parametros, pero me dio error de memoria grafica (`cudaMalloc failed: out of memory`). Al no entrar en la memoria de la tarjeta de video, el sistema paso a procesar todo con el procesador (CPU), lo que provocaba que la IA tardara entre 3 y 4 minutos en responder una simple pregunta o diera error de timeout.
+   Para solucionar esto, cambie la configuracion al modelo `qwen2.5:1.5b` (1.5B parametros), aumente el timeout a 360 segundos y limite la cantidad de tokens de salida (`num_predict = 80`). Con este ajuste, logre reducir el tiempo de respuesta de 4 minutos a menos de un minuto, haciendo que la conversacion sea fluida y utilizable en la maquina virtual.
 
 2. **La IA no respondia a preguntas simples si no habia documentos:**
    El proyecto original fallaba cada vez que la base de conocimiento estaba vacia. Lo solucione agregando una funcion de respaldo que detecta cuando no hay archivos y llama directamente al modelo para responder normalmente como un chatbot general.
 
 ### Que aprendi
 - Aprendi a conectar y consumir modelos de inteligencia artificial locales con Ollama dentro de un proyecto web con Django.
-- Comprendi como influye el tamano de los modelos (1B vs 3B) en el uso de memoria RAM/VRAM y en la velocidad de respuesta.
+- Comprendi como influye el tamano de los modelos (1.5B vs 3B) en el uso de memoria RAM/VRAM y en la velocidad de respuesta.
 - Aprendi a personalizar prompts y configurar parametros de generacion para adaptar el comportamiento de la IA al idioma espanol.
 
 ---
