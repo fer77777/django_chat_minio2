@@ -2,7 +2,7 @@
 
 **Asignatura:** Programacion IV  
 **Actividad:** Actividad 4 - Bloque 1 (Frameworks) / Bloque 3 (Patrones de Diseno)  
-**Estudiante:** Fernando  
+**Estudiante:** Fernando Carlos Carrasco Condori  
 **Fecha:** 21 de Septiembre  
 **Entorno de Ejecucion:** Linux (Debian 12 / MiniOS Bookworm), Python 3.11+, Ollama  
 
@@ -73,10 +73,9 @@ Tambien traduje los formularios, botones de envio, mensajes de error y avisos de
 ![Interfaz traducida al espanol](capturas/02_interfaz_espanol.png)  
 _Figura 2.1: Vista principal de la aplicacion con la interfaz, menus y formularios completamente en espanol._
 
-### 2.2 Traduccion y Actualizacion de la Documentacion
-Traduje todo el archivo `README.md` al espanol y agregue explicaciones paso a paso de como instalarlo, como configurar las variables de entorno en el archivo `.env` y recomendaciones tecnicas para mejorar el rendimiento.
 
-### 2.3 Configuracion de Prompts en Espanol
+
+### 2.2 Configuracion de Prompts en Espanol
 Para evitar que la IA respondiera en ingles, configure el System Prompt y la plantilla de preguntas y respuestas en `a_rtchat/rag.py` para obligar al modelo a responder en espanol latino:
 
 ```python
