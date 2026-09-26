@@ -3,18 +3,23 @@
 <wrapper class="block max-w-3xl mx-auto my-8 px-4 sm:px-6">
   <div
     id="chat_window"
-    class="h-[calc(100vh-8.5rem)] min-h-[36rem] max-h-[48rem] flex flex-col overflow-hidden rounded-2xl bg-slate-900 shadow-2xl shadow-slate-950/20 ring-1 ring-slate-800"
+    class="h-[calc(100vh-10rem)] min-h-[36rem] max-h-[48rem] flex flex-col overflow-hidden rounded-3xl bg-stone-900 shadow-2xl shadow-amber-950/30 ring-1 ring-amber-900/40"
   >
     <div
-      class="flex items-center justify-between border-b border-slate-800 bg-slate-950/80 px-5 py-3 text-sm"
+      class="flex items-center justify-between border-b border-amber-900/40 bg-stone-950/90 px-6 py-4 text-sm"
     >
-      <div>
-        <p class="mb-0 text-xs font-semibold uppercase tracking-wider text-slate-500">RAG Local</p>
-        <p class="mb-0 text-sm font-medium text-slate-100">Chat de Conocimiento</p>
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-lg">
+          🤖
+        </div>
+        <div>
+          <p class="mb-0 text-xs font-bold uppercase tracking-wider text-amber-400">Asistente Chocolatier</p>
+          <p class="mb-0 text-sm font-semibold text-stone-100">Consultas de Inventario & Sabores</p>
+        </div>
       </div>
-      <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
-        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-        <span id="online-count"></span>en línea
+      <span class="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-300">
+        <span class="h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
+        <span id="online-count"></span>En línea
       </span>
     </div>
     <div id="chat_container" class="grow overflow-x-hidden overflow-y-auto px-4 py-5 sm:px-5">
@@ -24,7 +29,7 @@
         {% endfor %}
       </ul>
     </div>
-    <div class="border-t border-slate-800 bg-slate-950/90 p-4">
+    <div class="border-t border-amber-900/40 bg-stone-950/95 p-4">
         <form id="chat_message_form" class="flex w-full flex-col gap-3 sm:flex-row sm:items-end"
         method="post"
         action="{% url 'home' %}"
@@ -34,7 +39,7 @@
         _="on htmx:afterRequest reset() me" >
           {% csrf_token %}
           {{ form.body }}
-          <button type="submit" class="!h-[3.25rem] w-full shrink-0 !rounded-xl !bg-emerald-500 !px-5 !py-0 text-sm font-semibold !shadow-none transition hover:!bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-950 active:scale-[0.98] sm:w-auto">Enviar</button>
+          <button type="submit" class="!h-[3.25rem] w-full shrink-0 !rounded-xl !bg-amber-600 hover:!bg-amber-500 !text-stone-950 !px-6 !py-0 text-sm font-bold !shadow-lg transition focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-950 active:scale-[0.98] sm:w-auto">Enviar</button>
         </form>
     </div>
   </div>

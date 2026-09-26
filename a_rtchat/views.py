@@ -64,17 +64,26 @@ def _create_bot_message(chat_group: ChatGroup, question: str) -> GroupMessage:
 
 
 def _answer_question(question: str) -> str:
+    from django.conf import settings as django_settings
+    from .openrouter_service import consultar_openrouter
+
+    # Si está configurado OpenRouter (opción recomendada para VM / rapidez):
+    provider = getattr(django_settings, 'AI_PROVIDER', 'openrouter')
+    if provider == 'openrouter' and getattr(django_settings, 'OPENROUTER_API_KEY', ''):
+        return consultar_openrouter(question)
+
+    # Si se selecciona Ollama local o falta clave OpenRouter:
     try:
         answer = LocalRag.from_settings().answer(question)
     except KnowledgeBaseEmpty:
-        # Sin documentos en knowledge_base: responder directamente con Ollama como chat general
+        # Responder con Ollama / datos de inventario
         return _answer_with_ollama_directly(question)
     except LocalRagConfigurationError as exc:
         return str(exc)
     except LocalRagError:
         return (
             "No pude procesar tu consulta. "
-            "Verifica que Ollama este en ejecucion y que los modelos configurados esten instalados."
+            "Verifica que Ollama este en ejecucion o configura tu clave OPENROUTER_API_KEY en .env."
         )
 
     if not answer.sources:

@@ -36,7 +36,15 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-local-dev-key-chang
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = ['*']
+
+# Permitir solicitudes POST/HTMX desde IPs de la red local (ej. http://172.25.4.242:8000 o máquina virtual)
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://172.25.4.242:8000',
+    'http://*.local:8000',
+]
 
 
 # Application definition
@@ -56,6 +64,7 @@ INSTALLED_APPS = [
     'a_home',
     'a_users',
     'a_rtchat',
+    'productos',
 ]
 
 MIDDLEWARE = [
@@ -160,6 +169,11 @@ OLLAMA_REQUEST_TIMEOUT = float(os.getenv("OLLAMA_REQUEST_TIMEOUT", "60"))
 # Reducir contexto y tokens de respuesta para acelerar la IA (el defecto de 131072 es muy lento)
 OLLAMA_NUM_CTX = int(os.getenv("OLLAMA_NUM_CTX", "4096"))      # contexto máximo (tokens)
 OLLAMA_NUM_PREDICT = int(os.getenv("OLLAMA_NUM_PREDICT", "512")) # tokens máximos de respuesta
+
+# OpenRouter / Cloud LLM configuration
+AI_PROVIDER = os.getenv("AI_PROVIDER", "openrouter")  # 'openrouter' o 'ollama'
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "qwen/qwen-2.5-7b-instruct:free")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

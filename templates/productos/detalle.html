@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="mb-6 flex items-center justify-between">
+    <a href="{% url 'productos:lista' %}" class="inline-flex items-center gap-2 text-sm font-semibold text-amber-900 hover:text-amber-700 transition">
+      <span>←</span> Volver al Catálogo
+    </a>
+    <div class="flex items-center gap-3">
+      <a href="{% url 'productos:editar' producto.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold transition">
+        ✏️ Modificar
+      </a>
+      <a href="{% url 'productos:eliminar' producto.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold transition">
+        🗑️ Eliminar
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-3xl shadow-xl border border-amber-900/10 overflow-hidden grid grid-cols-1 md:grid-cols-2">
+    <!-- Imagen del producto -->
+    <div class="relative bg-gradient-to-br from-amber-100 to-amber-200 min-h-[350px] flex items-center justify-center p-8">
+      {% if producto.imagen %}
+      <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="max-h-96 w-full object-cover rounded-2xl shadow-lg">
+      {% else %}
+      <div class="text-center text-amber-900/60">
+        <span class="text-8xl block mb-2">🍫</span>
+        <span class="text-sm font-bold uppercase tracking-wider text-amber-900/40">Sin Imagen Registrada</span>
+      </div>
+      {% endif %}
+
+      <div class="absolute top-4 left-4">
+        {% if producto.estado %}
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white shadow">
+          Disponible / Activo
+        </span>
+        {% else %}
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-gray-500 text-white shadow">
+          Inactivo / Descontinuado
+        </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Información detallada -->
+    <div class="p-8 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between text-xs text-amber-900/70 font-bold mb-2">
+          <span class="uppercase tracking-widest">{{ producto.categoria }}</span>
+          <span class="font-mono bg-amber-50 px-2.5 py-1 rounded border border-amber-200 text-amber-950 font-bold">
+            {{ producto.codigo }}
+          </span>
+        </div>
+
+        <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-2">
+          {{ producto.nombre }}
+        </h1>
+
+        <div class="flex items-baseline gap-3 my-4">
+          <span class="text-3xl font-black text-amber-950">Bs. {{ producto.precio }}</span>
+          <span class="text-xs text-gray-500">por unidad</span>
+        </div>
+
+        <p class="text-sm text-gray-600 leading-relaxed mb-6">
+          {{ producto.descripcion|default:"Chocolate artesanal elaborado con las mejores materias primas y técnicas tradicionales de chocolatería fina." }}
+        </p>
+
+        <!-- Especificaciones técnicas -->
+        <div class="border-t border-b border-gray-100 py-4 space-y-3 text-xs">
+          <div class="flex justify-between">
+            <span class="text-gray-500">Pureza de Cacao</span>
+            <span class="font-bold text-amber-950">{{ producto.porcentaje_cacao }}% de cacao</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Origen de los Granos</span>
+            <span class="font-bold text-amber-950">{{ producto.origen_cacao }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Stock Actual</span>
+            <span class="font-bold {% if producto.stock_bajo %}text-red-600{% else %}text-emerald-700{% endif %}">
+              {{ producto.cantidad_existente }} unidades {% if producto.stock_bajo %}(Stock Crítico){% endif %}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Valor Total en Stock</span>
+            <span class="font-bold text-gray-900">Bs. {{ producto.valor_total_inventario }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Fecha de Registro</span>
+            <span class="font-bold text-gray-900">{{ producto.fecha_ingreso|date:"d/m/Y" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 flex gap-3">
+        <a href="{% url 'productos:editar' producto.pk %}" class="flex-1 text-center py-2.5 rounded-xl bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs shadow transition">
+          Editar Registro
+        </a>
+        <a href="{% url 'productos:lista' %}" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold text-xs transition">
+          Volver
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

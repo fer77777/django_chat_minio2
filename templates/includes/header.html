@@ -1,16 +1,33 @@
 <header
-  class="flex items-center justify-between bg-gray-800 h-20 px-8 text-white sticky top-0 z-40"
+  class="flex items-center justify-between bg-amber-950 h-20 px-8 text-amber-50 sticky top-0 z-40 shadow-lg border-b border-amber-900/40"
 >
   <div>
-    <a class="flex items-center gap-2" href="/">
-      <img class="h-6" src="/static/images/logo.svg" alt="Logo" />
-      <span class="text-lg font-bold">Chatbot</span>
+    <a class="flex items-center gap-3" href="{% url 'productos:lista' %}">
+      <span class="text-2xl">🍫</span>
+      <div class="flex flex-col">
+        <span class="text-lg font-bold tracking-wide text-amber-100">Chocolatería Gourmet</span>
+        <span class="text-xs text-amber-300 font-medium">Gestión de Inventario & Asistente</span>
+      </div>
     </a>
   </div>
-  <nav class="block bg-gray-800 relative">
-    <ul class="navitems flex items-center justify-center h-full">
+  <nav class="block relative">
+    <ul class="navitems flex items-center gap-4 h-full text-sm font-semibold">
+      <li>
+        <a href="{% url 'productos:lista' %}" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-amber-900/60 transition">
+          <span>📦</span> Catálogo
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'productos:reportes' %}" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-amber-900/60 transition">
+          <span>📊</span> Reportes
+        </a>
+      </li>
+      <li>
+        <a href="/" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-amber-900/60 transition">
+          <span>🤖</span> Asistente IA
+        </a>
+      </li>
       {% if request.user.is_authenticated %}
-      <li><a href="/">Inicio</a></li>
       <li x-data="{ dropdownOpen: false }" class="relative">
         <a
           @click="dropdownOpen = !dropdownOpen"

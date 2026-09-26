@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- Header de Reportes -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold uppercase tracking-wider mb-2">
+        <span>📊</span> Panel Analítico
+      </div>
+      <h1 class="text-3xl font-black text-gray-900">Reportes de Inventario</h1>
+      <p class="text-sm text-gray-500 mt-1">
+        Métricas en tiempo real sobre el stock, valoración económica y pureza de cacao.
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="{% url 'productos:lista' %}" class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-xs font-semibold shadow-sm transition">
+        ← Volver al Catálogo
+      </a>
+      <a href="/" class="px-4 py-2 rounded-xl bg-amber-900 hover:bg-amber-950 text-white text-xs font-bold shadow transition">
+        Consultar con IA 🤖
+      </a>
+    </div>
+  </div>
+
+  <!-- Tarjetas de Resumen Global -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-900/10">
+      <span class="text-xs uppercase font-bold text-gray-400 block mb-1">Valor Total del Inventario</span>
+      <span class="text-2xl font-black text-amber-950">Bs. {{ valor_global }}</span>
+      <span class="text-xs text-amber-700 font-semibold block mt-1">Capital en mercadería</span>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-900/10">
+      <span class="text-xs uppercase font-bold text-gray-400 block mb-1">Total Unidades Físicas</span>
+      <span class="text-2xl font-black text-gray-900">{{ total_piezas_global }}</span>
+      <span class="text-xs text-emerald-600 font-semibold block mt-1">Unidades listas para venta</span>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-900/10">
+      <span class="text-xs uppercase font-bold text-gray-400 block mb-1">Productos Activos</span>
+      <span class="text-2xl font-black text-emerald-600">{{ total_activos }}</span>
+      <span class="text-xs text-gray-400 block mt-1">vs {{ total_inactivos }} inactivos</span>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-900/10">
+      <span class="text-xs uppercase font-bold text-gray-400 block mb-1">Precio Promedio</span>
+      <span class="text-2xl font-black text-indigo-600">Bs. {{ stats_precio.precio_promedio|floatformat:2|default:"0.00" }}</span>
+      <span class="text-xs text-gray-400 block mt-1">Rango: Bs. {{ stats_precio.precio_min|default:"0" }} - {{ stats_precio.precio_max|default:"0" }}</span>
+    </div>
+  </div>
+
+  <!-- Sección 1: Alerta de Stock Crítico -->
+  <div class="bg-white rounded-3xl p-6 shadow-sm border border-red-100 mb-8">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <span class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl">⚠️</span>
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Alerta: Chocolates con Stock Crítico (< 10 unidades)</h2>
+          <p class="text-xs text-gray-500">Lotes que requieren reabastecimiento urgente de producción artesanal.</p>
+        </div>
+      </div>
+      <span class="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-black">
+        {{ stock_critico.count }} productos
+      </span>
+    </div>
+
+    {% if stock_critico %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-red-50/50 text-red-950 font-bold border-b border-red-100">
+          <tr>
+            <th class="py-3 px-4">Código</th>
+            <th class="py-3 px-4">Nombre del Chocolate</th>
+            <th class="py-3 px-4">Categoría</th>
+            <th class="py-3 px-4">Stock Restante</th>
+            <th class="py-3 px-4">Precio</th>
+            <th class="py-3 px-4 text-right">Acción</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-red-50">
+          {% for p in stock_critico %}
+          <tr class="hover:bg-red-50/30">
+            <td class="py-3 px-4 font-mono font-bold text-gray-700">{{ p.codigo }}</td>
+            <td class="py-3 px-4 font-semibold text-gray-900">{{ p.nombre }}</td>
+            <td class="py-3 px-4 text-gray-600">{{ p.categoria }}</td>
+            <td class="py-3 px-4">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full font-black text-red-700 bg-red-100">
+                {{ p.cantidad_existente }} unid.
+              </span>
+            </td>
+            <td class="py-3 px-4 font-bold text-gray-900">Bs. {{ p.precio }}</td>
+            <td class="py-3 px-4 text-right">
+              <a href="{% url 'productos:editar' p.pk %}" class="text-amber-900 hover:underline font-bold">Reabastecer →</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="p-6 text-center text-sm text-emerald-700 bg-emerald-50 rounded-2xl">
+      ✅ Todos los productos tienen existencias suficientes (10 o más unidades).
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+
+    <!-- Sección 2: Desglose por Categoría y Valor Monetario -->
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-amber-900/10">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center text-xl">🍫</span>
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Distribución por Categoría</h2>
+          <p class="text-xs text-gray-500">Unidades y valor monetario por tipo de chocolate.</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        {% for cat in categorias_stats %}
+        <div class="p-4 rounded-2xl bg-amber-50/50 border border-amber-900/5">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-amber-950 text-sm">{{ cat.nombre }}</span>
+            <span class="text-xs font-mono font-bold text-gray-700">Bs. {{ cat.valor_total }}</span>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500">
+            <span>{{ cat.cantidad_variedades }} variedad(es)</span>
+            <span>{{ cat.total_unidades }} unidades en total</span>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-xs text-gray-400 text-center py-4">No hay datos suficientes registrados.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Sección 3: Chocolates Gourmet de Alta Pureza (>= 70% Cacao) -->
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-amber-900/10">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl">🌿</span>
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Gama Premium (≥ 70% Cacao)</h2>
+          <p class="text-xs text-gray-500">Línea de alta pureza y origen de grano certificado.</p>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        {% for p in alta_pureza %}
+        <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition border border-gray-100">
+          <div>
+            <p class="text-sm font-bold text-gray-900">{{ p.nombre }}</p>
+            <p class="text-xs text-gray-500">{{ p.origen_cacao }}</p>
+          </div>
+          <div class="text-right">
+            <span class="px-2.5 py-1 rounded-full text-xs font-black bg-amber-950 text-amber-300">
+              {{ p.porcentaje_cacao }}% Cacao
+            </span>
+            <span class="block text-xs font-bold text-gray-700 mt-1">Bs. {{ p.precio }}</span>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-xs text-gray-400 text-center py-4">No hay chocolates con 70% o más de cacao.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sección 4: Top 5 Chocolates Más Exclusivos (Precio) -->
+  <div class="bg-white rounded-3xl p-6 shadow-sm border border-amber-900/10">
+    <h2 class="text-lg font-bold text-gray-900 mb-1">Top Productos por Precio</h2>
+    <p class="text-xs text-gray-500 mb-4">Los productos con mayor valor unitario en la chocolatería.</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {% for p in chocolates_top_precio %}
+      <div class="p-4 rounded-2xl bg-gradient-to-b from-amber-50 to-white border border-amber-200/60 text-center">
+        <span class="text-3xl block mb-2">🏆</span>
+        <h3 class="text-xs font-bold text-gray-800 line-clamp-1">{{ p.nombre }}</h3>
+        <p class="text-xs text-gray-400 mt-0.5">{{ p.categoria }}</p>
+        <p class="text-base font-black text-amber-950 mt-2">Bs. {{ p.precio }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

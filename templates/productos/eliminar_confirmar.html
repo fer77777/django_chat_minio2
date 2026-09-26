@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-16">
+  <div class="bg-white rounded-3xl p-8 shadow-2xl border border-red-100 text-center">
+    <div class="w-16 h-16 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-3xl mx-auto mb-4">
+      🗑️
+    </div>
+
+    <h2 class="text-xl font-black text-gray-900 mb-2">¿Eliminar este chocolate?</h2>
+    <p class="text-sm text-gray-500 mb-6">
+      Estás a punto de eliminar definitivamente el producto 
+      <strong class="text-gray-900 font-bold">"{{ producto.nombre }}"</strong> (Código: {{ producto.codigo }}).
+      Esta acción no se puede deshacer.
+    </p>
+
+    <form method="POST" class="flex gap-3">
+      {% csrf_token %}
+      <a href="{% url 'productos:lista' %}" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 text-xs font-semibold hover:bg-gray-50 transition">
+        Cancelar
+      </a>
+      <button type="submit" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow transition">
+        Sí, Eliminar
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
