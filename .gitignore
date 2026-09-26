@@ -10,3 +10,6 @@ knowledge_base/*
 knowledge_markdown/*
 !knowledge_markdown/.gitkeep
 rag_storage/
+
+# Archivos de medios subidos (imágenes de productos)
+media/productos/
