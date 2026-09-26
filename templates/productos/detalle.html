@@ -92,11 +92,15 @@
         </div>
       </div>
 
-      <div class="mt-6 pt-4 flex gap-3">
-        <a href="{% url 'productos:editar' producto.pk %}" class="flex-1 text-center py-2.5 rounded-xl bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs shadow transition">
-          Editar Registro
+      <div class="mt-6 pt-4 flex flex-wrap gap-3">
+        <button type="button" onclick="if(window.widgetSendPrompt){ widgetSendPrompt('Dame todos los detalles, precio, cacao y stock del producto {{ producto.codigo }} ({{ producto.nombre }})'); if(window.Alpine) { const w = document.querySelector('[x-data]'); if(w && w.__x) w.__x.$data.chatOpen = true; } }"
+          class="flex-1 text-center py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-700 to-amber-600 hover:from-amber-800 hover:to-amber-700 text-white font-bold text-xs shadow transition flex items-center justify-center gap-2 cursor-pointer border-0">
+          <span>🤖</span> Consultar al Asistente IA
+        </button>
+        <a href="{% url 'productos:editar' producto.pk %}" class="py-2.5 px-4 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs shadow-sm transition">
+          ✏️ Editar
         </a>
-        <a href="{% url 'productos:lista' %}" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold text-xs transition">
+        <a href="{% url 'productos:lista' %}" class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold text-xs transition">
           Volver
         </a>
       </div>

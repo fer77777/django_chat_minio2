@@ -31,9 +31,9 @@ def chat_view(request):
                 "message2": message2,
                 "user": request.user,
             }
-            if request.htmx:
+            if request.htmx or request.headers.get("HX-Request"):
                 return render(request, "a_rtchat/partials/chat_messages_p.html", context)
-            return redirect("home")
+            return render(request, "a_rtchat/partials/chat_messages_p.html", context)
 
     return render(request, "a_rtchat/chat.html", {"chat_messages": chat_messages, "form": form})
 
@@ -108,25 +108,29 @@ def _answer_question(question: str) -> str:
 
 
 def _answer_with_ollama_directly(question: str) -> str:
-    """Responde directamente usando Ollama como chat general cuando no hay documentos indexados."""
+    """Responde usando Ollama local enviando el inventario estructurado como exige el requerimiento RF-08 / RF-09."""
     from django.conf import settings as django_settings
-    from .rag import SYSTEM_PROMPT_ES
+    from .openrouter_service import _obtener_inventario_json, SYSTEM_PROMPT_INVENTARIO
 
     try:
         from llama_index.llms.ollama import Ollama
+
+        inventario_json = _obtener_inventario_json()
+        prompt_completo = f"INVENTARIO:\n{inventario_json}\n\nPREGUNTA DEL USUARIO:\n{question}"
 
         llm = Ollama(
             model=django_settings.OLLAMA_CHAT_MODEL,
             base_url=django_settings.OLLAMA_BASE_URL,
             request_timeout=django_settings.OLLAMA_REQUEST_TIMEOUT,
-            system_prompt=SYSTEM_PROMPT_ES,
+            system_prompt=SYSTEM_PROMPT_INVENTARIO,
             context_window=django_settings.OLLAMA_NUM_CTX,
             additional_kwargs={
                 "num_ctx": django_settings.OLLAMA_NUM_CTX,
                 "num_predict": django_settings.OLLAMA_NUM_PREDICT,
+                "temperature": 0.0,
             },
         )
-        response = llm.complete(question)
+        response = llm.complete(prompt_completo)
         return str(response)
     except ImportError:
         return (
@@ -135,7 +139,7 @@ def _answer_with_ollama_directly(question: str) -> str:
         )
     except Exception as exc:
         return (
-            f"No pude conectarme al modelo de IA. "
-            f"Verifica que Ollama este en ejecucion con el modelo '{django_settings.OLLAMA_CHAT_MODEL}'. "
+            f"No pude conectarme a Ollama local. "
+            f"Verifica que Ollama este en ejecucion (puerto 11434) o usa OpenRouter. "
             f"Detalle: {exc}"
         )

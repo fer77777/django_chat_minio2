@@ -130,12 +130,13 @@
         </div>
     </footer>
 
-    <!-- Botón Flotante / Globito de Chat IA en la esquina inferior derecha -->
+    <!-- Botón Flotante / Widget Chat IA - embebido sin iframe -->
+    {% if request.user.is_authenticated %}
     <div x-data="{ chatOpen: false }" class="fixed bottom-6 right-6 z-50">
-        
-        <!-- Ventana Modal / Tarjeta Flotante del Chat -->
-        <div 
-            x-show="chatOpen" 
+
+        <!-- Ventana flotante del chat -->
+        <div
+            x-show="chatOpen"
             x-cloak
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 translate-y-8 scale-90"
@@ -143,44 +144,211 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
             x-transition:leave-end="opacity-0 translate-y-8 scale-90"
-            class="mb-4 w-[22rem] sm:w-[26rem] h-[34rem] bg-stone-900 rounded-3xl shadow-2xl border border-amber-900/40 flex flex-col overflow-hidden"
+            style="width:26rem; max-width:calc(100vw - 2rem); height:38rem; max-height:calc(100vh - 6rem); background:#1a1a1a; border:1px solid rgba(120,53,15,0.4);"
+            class="mb-4 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+            id="widget-chat-box"
         >
-            <!-- Cabecera del Widget -->
-            <div class="bg-stone-950 px-5 py-3.5 border-b border-amber-900/40 flex items-center justify-between">
+            <!-- Cabecera -->
+            <div style="background:#1f1f1f; border-bottom:1px solid rgba(255,255,255,0.06);" class="px-4 py-3 shrink-0 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <span class="text-xl">🤖</span>
+                    <div style="background:#2c1a06; border:1px solid rgba(251,191,36,0.3); width:2rem; height:2rem; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem;">🤖</div>
                     <div>
-                        <p class="text-xs font-bold text-amber-200 m-0">Asistente Chocolatier</p>
-                        <p class="text-[10px] text-emerald-400 font-medium m-0 flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> En línea
+                        <p style="margin:0; font-size:10px; font-weight:700; letter-spacing:.08em; color:#d97706; text-transform:uppercase;">Asistente Chocolatier</p>
+                        <p style="margin:0; font-size:12px; font-weight:600; color:#f5f5f5; display:flex; align-items:center; gap:5px;">
+                            <span style="width:7px;height:7px;border-radius:50%;background:#34d399;display:inline-block;animation:pulse 1.5s infinite;"></span> En línea
                         </p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <a href="{% url 'limpiar_chat' %}" class="text-[11px] text-amber-300 hover:text-white px-2 py-1 rounded bg-stone-800" title="Vaciar mensajes">
-                        🧹 Limpiar
-                    </a>
-                    <button type="button" @click="chatOpen = false" class="!bg-transparent !p-1 text-stone-400 hover:text-white !shadow-none !border-0 text-lg leading-none cursor-pointer">
-                        ✕
-                    </button>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <a href="{% url 'limpiar_chat' %}"
+                       hx-get="{% url 'limpiar_chat' %}"
+                       hx-target="#widget-chat-messages"
+                       hx-swap="innerHTML"
+                       style="font-size:11px; color:#d6a96a; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:999px; padding:4px 10px; text-decoration:none; cursor:pointer;"
+                       onmouseover="this.style.background='#333'" onmouseout="this.style.background='#2a2a2a'"
+                    >🧹 Limpiar</a>
+                    <button type="button" @click="chatOpen = false"
+                        style="background:transparent; border:none; color:#888; font-size:1.1rem; cursor:pointer; padding:2px 6px; line-height:1;"
+                        onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#888'"
+                    >✕</button>
                 </div>
             </div>
 
-            <!-- Frame / Contenedor interactivo -->
-            <iframe src="/chat/" class="w-full flex-1 border-0 bg-stone-900"></iframe>
+            <!-- Mensajes -->
+            <div id="widget-chat-container" style="flex:1; overflow-y:auto; overflow-x:hidden; padding:14px 12px; background:#1a1a1a;">
+                <ul id="widget-chat-messages" style="display:flex; flex-direction:column; gap:10px; min-height:100%; justify-content:flex-end; list-style:none; margin:0; padding:0;">
+                    {% with chat_messages=widget_chat_messages %}
+                    {% if chat_messages %}
+                        {% for message in chat_messages reversed %}
+                            {% include 'a_rtchat/chat_message.html' %}
+                        {% endfor %}
+                    {% else %}
+                        <!-- Estado vacío: chips de preguntas -->
+                        <li style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:16px 8px;">
+                            <div style="text-align:center;">
+                                <div style="font-size:2.5rem; margin-bottom:8px;">🍫</div>
+                                <p style="color:#d1d5db; font-size:13px; font-weight:600; margin:0;">¡Hola! Soy tu asistente Chocolatier.</p>
+                                <p style="color:#6b7280; font-size:11px; margin:4px 0 0 0;">Pregúntame sobre stock, precios o productos.</p>
+                            </div>
+                            <div style="width:100%; display:flex; flex-direction:column; gap:8px;">
+                                <button type="button" onclick="widgetSendPrompt('¿Qué chocolates tienen más del 70% de cacao?')" class="widget-chip">🍫 ¿Qué chocolates tienen +70% cacao?</button>
+                                <button type="button" onclick="widgetSendPrompt('¿Cuáles productos tienen stock crítico o bajo?')" class="widget-chip">⚠️ ¿Qué productos tienen stock bajo?</button>
+                                <button type="button" onclick="widgetSendPrompt('¿Cuál es el chocolate más exclusivo y caro?')" class="widget-chip">💎 ¿Cuál es el chocolate más exclusivo?</button>
+                                <button type="button" onclick="widgetSendPrompt('¿Qué opciones de bombones o trufas tienes?')" class="widget-chip">🎁 ¿Qué trufas y bombones hay?</button>
+                                <button type="button" onclick="widgetSendPrompt('¿Cuánto cuesta la Barra Silvestre Alto Beni?')" class="widget-chip">🏷️ ¿Cuánto cuesta la Barra Silvestre?</button>
+                            </div>
+                        </li>
+                    {% endif %}
+                    {% endwith %}
+                </ul>
+
+                <!-- Indicador de "Escribiendo..." animado con 3 puntitos -->
+                <div id="chat-typing-indicator" class="htmx-indicator flex items-end gap-2 px-2 pt-2" style="display:none;">
+                    <div style="width:1.75rem; height:1.75rem; border-radius:50%; background:rgba(180,83,9,0.25); border:1px solid rgba(245,158,11,0.4); display:flex; align-items:center; justify-content:center; font-size:0.875rem;">
+                        🤖
+                    </div>
+                    <div style="background:#2a2a2a; border:1px solid rgba(217,119,6,0.3); border-radius:20px 20px 20px 4px; padding:8px 16px; display:inline-flex; align-items:center; gap:5px;">
+                        <span class="typing-dot" style="animation-delay:0ms;"></span>
+                        <span class="typing-dot" style="animation-delay:180ms;"></span>
+                        <span class="typing-dot" style="animation-delay:360ms;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div style="background:#1f1f1f; border-top:1px solid rgba(255,255,255,0.06); padding:10px 12px; shrink:0;">
+                <form id="widget-chat-form"
+                    method="post"
+                    action="/chat/"
+                    hx-post="/chat/"
+                    hx-target="#widget-chat-messages"
+                    hx-swap="beforeend"
+                    hx-indicator="#chat-typing-indicator"
+                    style="display:flex; gap:8px; align-items:flex-end;"
+                >
+                    {% csrf_token %}
+                    <input type="text" name="body" id="widget-body" placeholder="Escribe tu pregunta..." autocomplete="off"
+                        style="flex:1; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:22px; padding:9px 16px; color:#f5f5f5; font-size:13px; outline:none; font-family:'Outfit',sans-serif;"
+                        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();widgetSubmitForm();}"
+                        onfocus="this.style.borderColor='#d97706'" onblur="this.style.borderColor='#3a3a3a'"
+                    />
+                    <button type="button" onclick="widgetSubmitForm()"
+                        style="width:36px;height:36px;border-radius:50%;background:#d97706;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;"
+                        onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1a1a1a" width="16" height="16">
+                            <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
         </div>
 
-        <!-- Botón Globito Flotante -->
-        <button 
-            type="button" 
-            @click="chatOpen = !chatOpen" 
-            class="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-950 to-amber-700 hover:from-amber-900 hover:to-amber-600 text-white flex items-center justify-center shadow-2xl border-2 border-amber-400/50 hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none !p-0"
-            title="Abrir Chat Asistente"
+        <!-- Botón globito flotante -->
+        <button
+            type="button"
+            @click="chatOpen = !chatOpen; if(chatOpen) $nextTick(() => widgetScrollBottom())"
+            class="w-14 h-14 rounded-full text-white flex items-center justify-center shadow-2xl border-2 border-amber-400/50 hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none !p-0"
+            style="background: linear-gradient(135deg, #78350f, #d97706);"
+            title="Abrir Asistente IA"
         >
-            <span x-show="!chatOpen" class="text-2xl">💬</span>
-            <span x-show="chatOpen" class="text-xl font-bold">✕</span>
+            <span x-show="!chatOpen" style="font-size:1.5rem;">💬</span>
+            <span x-show="chatOpen" style="font-size:1.1rem; font-weight:bold;">✕</span>
         </button>
     </div>
+
+    <style>
+    .typing-dot {
+        width: 7px;
+        height: 7px;
+        background-color: #f59e0b;
+        border-radius: 50%;
+        display: inline-block;
+        animation: typingBounce 1.2s infinite ease-in-out;
+    }
+    @keyframes typingBounce {
+        0%, 80%, 100% {
+            transform: scale(0.6);
+            opacity: 0.4;
+        }
+        40% {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+    }
+    .htmx-request#chat-typing-indicator,
+    .htmx-request #chat-typing-indicator,
+    #widget-chat-form.htmx-request ~ #widget-chat-container #chat-typing-indicator,
+    #chat-typing-indicator.htmx-request {
+        display: flex !important;
+    }
+    .widget-chip {
+        width: 100%;
+        text-align: left;
+        background: #2a2a2a;
+        border: 1px solid #383838;
+        border-radius: 12px;
+        color: #d6d3cf;
+        font-size: 12px;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        padding: 9px 13px;
+        cursor: pointer;
+        transition: background 0.18s, border-color 0.18s, color 0.18s;
+        line-height: 1.4;
+    }
+    .widget-chip:hover {
+        background: #3a2a12 !important;
+        border-color: #d97706 !important;
+        color: #fde68a !important;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .4; }
+    }
+    </style>
+
+    <script>
+    function widgetScrollBottom() {
+        const c = document.getElementById('widget-chat-container');
+        if (c) c.scrollTop = c.scrollHeight;
+    }
+    function widgetSendPrompt(text) {
+        const inp = document.getElementById('widget-body');
+        if (inp) {
+            inp.value = text;
+            widgetSubmitForm();
+        }
+    }
+    function widgetSubmitForm() {
+        const form = document.getElementById('widget-chat-form');
+        const inp = document.getElementById('widget-body');
+        if (!inp || !inp.value.trim()) return;
+        if (form && window.htmx) {
+            htmx.trigger(form, 'submit');
+            setTimeout(() => { if (inp) inp.value = ''; }, 20);
+        } else if (form) {
+            form.submit();
+        }
+    }
+    document.addEventListener('htmx:afterSwap', function(e) {
+        if (e.detail && e.detail.target && e.detail.target.id === 'widget-chat-messages') {
+            widgetScrollBottom();
+        }
+    });
+    </script>
+    {% else %}
+    <!-- Si no está autenticado, el globito lleva al login -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <a href="{% url 'account_login' %}"
+           class="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl border-2 border-amber-400/50 hover:scale-105 transition-all duration-300"
+           style="background: linear-gradient(135deg, #78350f, #d97706); display:flex;"
+           title="Iniciar sesión para usar el asistente"
+        >
+            <span style="font-size:1.5rem;">💬</span>
+        </a>
+    </div>
+    {% endif %}
 
     {% block javascript %} {% endblock %}
 

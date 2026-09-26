@@ -22,11 +22,6 @@
           <span>📊</span> Reportes
         </a>
       </li>
-      <li>
-        <a href="/chat/" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-amber-900/60 transition">
-          <span>🤖</span> Asistente IA
-        </a>
-      </li>
       {% if request.user.is_authenticated %}
       <li x-data="{ dropdownOpen: false }" class="relative">
         <a
