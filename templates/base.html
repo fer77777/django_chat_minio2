@@ -227,6 +227,8 @@
                     style="display:flex; gap:8px; align-items:flex-end;"
                 >
                     {% csrf_token %}
+                    <!-- Flag para que el servidor devuelva solo la respuesta del bot -->
+                    <input type="hidden" name="widget_mode" value="1">
                     <input type="text" name="body" id="widget-body" placeholder="Escribe tu pregunta..." autocomplete="off"
                         style="flex:1; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:22px; padding:9px 16px; color:#f5f5f5; font-size:13px; outline:none; font-family:'Outfit',sans-serif;"
                         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();widgetSubmitForm();}"
@@ -322,11 +324,34 @@
     }
     function widgetSubmitForm() {
         const form = document.getElementById('widget-chat-form');
-        const inp = document.getElementById('widget-body');
-        if (!inp || !inp.value.trim()) return;
+        const inp  = document.getElementById('widget-body');
+        const val  = inp ? inp.value.trim() : '';
+        if (!val) return;
+
+        // ── 1. Mostrar burbuja del usuario INMEDIATAMENTE (optimistic UI) ──
+        const msgList = document.getElementById('widget-chat-messages');
+        if (msgList) {
+            // Quitar chips de preguntas si aún están visibles
+            const chips = msgList.querySelector('li:first-child');
+            if (chips && chips.querySelector('.widget-chip')) chips.remove();
+
+            const li = document.createElement('li');
+            li.style.cssText = 'display:flex; justify-content:flex-end; padding:0 8px;';
+            const safeVal = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            li.innerHTML = `
+                <div style="max-width:78%;">
+                    <div style="background:#3d3d3d; color:#f5f5f5; border-radius:22px 22px 6px 22px; padding:10px 16px; font-size:13px; line-height:1.5; word-break:break-word;">${safeVal}</div>
+                    <p style="font-size:10px; color:#78716c; text-align:right; margin:4px 4px 0 0;">T\xfa</p>
+                </div>`;
+            msgList.appendChild(li);
+            widgetScrollBottom();
+        }
+
+        // ── 2. Disparar HTMX (el servidor devolverá SOLO la respuesta del bot) ──
         if (form && window.htmx) {
             htmx.trigger(form, 'submit');
-            setTimeout(() => { if (inp) inp.value = ''; }, 20);
+            // Limpiar input DESPUÉS de que HTMX lo leyó para el POST
+            setTimeout(() => { if (inp) inp.value = ''; }, 30);
         } else if (form) {
             form.submit();
         }

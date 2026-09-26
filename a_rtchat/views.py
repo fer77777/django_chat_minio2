@@ -31,6 +31,10 @@ def chat_view(request):
                 "message2": message2,
                 "user": request.user,
             }
+            # Si viene del widget flotante, el JS ya mostró la burbuja del usuario
+            # → devolver SOLO la respuesta del bot para evitar el duplicado
+            if request.POST.get("widget_mode"):
+                return render(request, "a_rtchat/partials/chat_messages_p.html", {**context, "widget_mode": True})
             if request.htmx or request.headers.get("HX-Request"):
                 return render(request, "a_rtchat/partials/chat_messages_p.html", context)
             return render(request, "a_rtchat/partials/chat_messages_p.html", context)

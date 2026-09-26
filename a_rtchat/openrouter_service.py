@@ -41,11 +41,10 @@ def _obtener_inventario_json() -> str:
     return json.dumps(data, ensure_ascii=False)
 
 
-# Modelos gratuitos sin colas largas de espera
+# Modelos gratuitos conversacionales en español
 MODELOS_GRATUITOS = [
-    "openrouter/free",
     "liquid/lfm-2.5-2.6b:free",
-    "nvidia/nemotron-3.5-lightning:free",
+    "openrouter/free",
     "google/gemma-4-31b-it:free",
 ]
 
@@ -83,25 +82,28 @@ PREGUNTA: {pregunta}"""
                 {"role": "user", "content": prompt_completo},
             ],
             "temperature": 0.1,
-            "max_tokens": 300,
+            "max_tokens": 800,
         }
 
         try:
-            # Timeout de 6 segundos por modelo para no hacer esperar al usuario
-            response = requests.post(OPENROUTER_API_URL, headers=headers, json=payload, timeout=6)
+            # Timeout de 10 segundos por modelo
+            response = requests.post(OPENROUTER_API_URL, headers=headers, json=payload, timeout=10)
             if response.status_code == 200:
                 data = response.json()
                 choices = data.get("choices")
                 if choices and len(choices) > 0:
                     msg = choices[0].get("message", {})
                     content = msg.get("content")
+                    # Si el modelo guardó la respuesta solo en content
                     if content and isinstance(content, str) and content.strip():
                         texto = content.strip()
-                        # Limpiar razonamiento si el modelo lo incluye
+                        # Si por algún motivo el modelo pegó reasoning en el texto, limpiarlo:
                         if "Here's a thinking process:" in texto:
                             partes = texto.split("\n\n")
                             texto = partes[-1] if len(partes) > 1 else texto
                         return texto
+                    
+                    # Si el content vino vacío o truncado por reasoning, no mostrar el reasoning en inglés
         except Exception:
             continue
 
