@@ -110,21 +110,22 @@ PREGUNTA: {pregunta}"""
 
 
 def _fallback_ollama_local(pregunta: str) -> str:
-    """Fallback directo a Ollama local (llama3.2:1b) con parámetros optimizados de velocidad."""
+    """Fallback directo a Ollama local con parámetros optimizados de velocidad."""
     try:
         inventario_json = _obtener_inventario_json()
         prompt_completo = f"{SYSTEM_PROMPT_INVENTARIO}\n\nINVENTARIO:\n{inventario_json}\n\nPREGUNTA:\n{pregunta}"
+        modelo_local = getattr(settings, "OLLAMA_CHAT_MODEL", "qwen2.5:1.5b")
         
         response = requests.post("http://localhost:11434/api/generate", json={
-            "model": getattr(settings, "OLLAMA_CHAT_MODEL", "llama3.2:1b"),
+            "model": modelo_local,
             "prompt": prompt_completo,
             "stream": False,
             "options": {
-                "num_predict": 150,
+                "num_predict": 120,
                 "num_ctx": 1024,
                 "temperature": 0.1,
             }
-        }, timeout=25)
+        }, timeout=45)
 
         if response.status_code == 200:
             return response.json().get("response", "").strip()
