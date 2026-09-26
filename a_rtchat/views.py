@@ -13,8 +13,8 @@ BOT_USERNAME = "botty"
 
 @login_required
 def chat_view(request):
-    chat_group = _get_chat_group()
-    chat_messages = chat_group.chat_messages.all()[:30]
+    chat_group = _get_user_chat_group(request.user)
+    chat_messages = chat_group.chat_messages.all()[:40]
     form = ChatmessageCreateForm()
 
     if request.method == "POST":
@@ -38,8 +38,22 @@ def chat_view(request):
     return render(request, "a_rtchat/chat.html", {"chat_messages": chat_messages, "form": form})
 
 
-def _get_chat_group() -> ChatGroup:
-    chat_group, _created = ChatGroup.objects.get_or_create(group_name=CHAT_GROUP_NAME)
+@login_required
+def limpiar_chat_view(request):
+    """Vacía todos los mensajes del chat del usuario autenticado."""
+    chat_group = _get_user_chat_group(request.user)
+    chat_group.chat_messages.all().delete()
+    if request.htmx:
+        return render(request, "a_rtchat/partials/empty_chat.html")
+    # Redirigir según de dónde vino la petición
+    referer = request.META.get('HTTP_REFERER', '/')
+    return redirect(referer)
+
+
+def _get_user_chat_group(user) -> ChatGroup:
+    """Crea o recupera una sala de chat exclusiva y limpia para cada usuario."""
+    group_name = f"chat-user-{user.username}"
+    chat_group, _created = ChatGroup.objects.get_or_create(group_name=group_name)
     return chat_group
 
 

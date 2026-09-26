@@ -17,15 +17,53 @@
           <p class="mb-0 text-sm font-semibold text-stone-100">Consultas de Inventario & Sabores</p>
         </div>
       </div>
-      <span class="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-300">
-        <span class="h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
-        <span id="online-count"></span>En línea
-      </span>
+      <div class="flex items-center gap-3">
+        <a 
+          href="{% url 'limpiar_chat' %}" 
+          hx-get="{% url 'limpiar_chat' %}" 
+          hx-target="#chat_messages" 
+          hx-swap="innerHTML"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 text-xs font-semibold transition"
+          title="Borrar historial y empezar chat limpio"
+        >
+          <span>🧹</span> Limpiar Chat
+        </a>
+        <span class="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-300">
+          <span class="h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span>En línea</span>
+        </span>
+      </div>
     </div>
+
+    <!-- Preguntas rápidas sugeridas -->
+    <div class="bg-stone-950/60 border-b border-amber-900/20 px-5 py-2 overflow-x-auto flex items-center gap-2 text-xs">
+      <span class="text-stone-400 font-bold whitespace-nowrap">💡 Preguntas:</span>
+      <button type="button" onclick="insertPrompt('¿Qué chocolates tienen más del 70% de cacao?')" class="whitespace-nowrap px-3 py-1 rounded-full bg-stone-800 hover:bg-amber-950 text-amber-200 border border-amber-900/40 text-[11px] transition">
+        🍫 +70% Cacao
+      </button>
+      <button type="button" onclick="insertPrompt('¿Cuáles productos tienen stock crítico o bajo?')" class="whitespace-nowrap px-3 py-1 rounded-full bg-stone-800 hover:bg-amber-950 text-amber-200 border border-amber-900/40 text-[11px] transition">
+        ⚠️ Stock Bajo
+      </button>
+      <button type="button" onclick="insertPrompt('¿Cuál es el chocolate más exclusivo y caro?')" class="whitespace-nowrap px-3 py-1 rounded-full bg-stone-800 hover:bg-amber-950 text-amber-200 border border-amber-900/40 text-[11px] transition">
+        💎 Más Exclusivo
+      </button>
+      <button type="button" onclick="insertPrompt('¿Qué opciones de bombones o trufas tienes?')" class="whitespace-nowrap px-3 py-1 rounded-full bg-stone-800 hover:bg-amber-950 text-amber-200 border border-amber-900/40 text-[11px] transition">
+        🎁 Trufas & Bombones
+      </button>
+      <button type="button" onclick="insertPrompt('¿Cuánto cuesta la Barra Silvestre Alto Beni?')" class="whitespace-nowrap px-3 py-1 rounded-full bg-stone-800 hover:bg-amber-950 text-amber-200 border border-amber-900/40 text-[11px] transition">
+        🏷️ Consultar Precio
+      </button>
+    </div>
+
     <div id="chat_container" class="grow overflow-x-hidden overflow-y-auto px-4 py-5 sm:px-5">
       <ul id="chat_messages" class="flex min-h-full flex-col justify-end gap-5">
         {% for message in chat_messages reversed %} 
           {% include 'a_rtchat/chat_message.html' %}
+        {% empty %}
+          <li class="p-6 text-center text-stone-400 text-xs flex flex-col items-center justify-center">
+            <span class="text-3xl mb-2">🍫</span>
+            <span>¡Hola! Soy tu asistente de chocolatería artesanal. Pregúntame sobre cualquier producto, stock, pureza o precios.</span>
+          </li>
         {% endfor %}
       </ul>
     </div>
@@ -48,16 +86,24 @@
 
 {% block javascript %}
 <script>
-  
+  function insertPrompt(text) {
+    const input = document.getElementById('id_body');
+    if (input) {
+      input.value = text;
+      input.focus();
+    }
+  }
+
   function scrollToBottom() {
     const container = document.getElementById('chat_container');
-    container.scrollTop = container.scrollHeight;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   }
   const messageInput = document.getElementById('id_body');
   if (messageInput) {
     messageInput.value = '';
   }
-  scrollToBottom()
-
+  scrollToBottom();
 </script>
 {% endblock %}

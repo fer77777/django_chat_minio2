@@ -130,6 +130,58 @@
         </div>
     </footer>
 
+    <!-- Botón Flotante / Globito de Chat IA en la esquina inferior derecha -->
+    <div x-data="{ chatOpen: false }" class="fixed bottom-6 right-6 z-50">
+        
+        <!-- Ventana Modal / Tarjeta Flotante del Chat -->
+        <div 
+            x-show="chatOpen" 
+            x-cloak
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-8 scale-90"
+            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+            x-transition:leave-end="opacity-0 translate-y-8 scale-90"
+            class="mb-4 w-[22rem] sm:w-[26rem] h-[34rem] bg-stone-900 rounded-3xl shadow-2xl border border-amber-900/40 flex flex-col overflow-hidden"
+        >
+            <!-- Cabecera del Widget -->
+            <div class="bg-stone-950 px-5 py-3.5 border-b border-amber-900/40 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-xl">🤖</span>
+                    <div>
+                        <p class="text-xs font-bold text-amber-200 m-0">Asistente Chocolatier</p>
+                        <p class="text-[10px] text-emerald-400 font-medium m-0 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> En línea
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{% url 'limpiar_chat' %}" class="text-[11px] text-amber-300 hover:text-white px-2 py-1 rounded bg-stone-800" title="Vaciar mensajes">
+                        🧹 Limpiar
+                    </a>
+                    <button type="button" @click="chatOpen = false" class="!bg-transparent !p-1 text-stone-400 hover:text-white !shadow-none !border-0 text-lg leading-none cursor-pointer">
+                        ✕
+                    </button>
+                </div>
+            </div>
+
+            <!-- Frame / Contenedor interactivo -->
+            <iframe src="/chat/" class="w-full flex-1 border-0 bg-stone-900"></iframe>
+        </div>
+
+        <!-- Botón Globito Flotante -->
+        <button 
+            type="button" 
+            @click="chatOpen = !chatOpen" 
+            class="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-950 to-amber-700 hover:from-amber-900 hover:to-amber-600 text-white flex items-center justify-center shadow-2xl border-2 border-amber-400/50 hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none !p-0"
+            title="Abrir Chat Asistente"
+        >
+            <span x-show="!chatOpen" class="text-2xl">💬</span>
+            <span x-show="chatOpen" class="text-xl font-bold">✕</span>
+        </button>
+    </div>
+
     {% block javascript %} {% endblock %}
 
 </body>
