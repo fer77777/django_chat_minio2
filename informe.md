@@ -1,6 +1,6 @@
 # Actividad 5 - Programación IV: Sistema de Gestión de Inventario con CRUD e Integración de IA Local Mediante Ollama
 
-**Estudiante:** Fernando (FER)  
+**Estudiante:** Fernando Carlos Carrasco Condori  
 **Asignatura:** Programación IV  
 **Docente:** Ing. de la Materia  
 **Fecha:** 28 de Septiembre  
