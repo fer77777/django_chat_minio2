@@ -1,3 +1,4 @@
+{% load chat_filters %}
 {# Burbuja individual para bucle o renderizado #}
 {% if message.author == user %}
 {# Burbuja del USUARIO — derecha #}
@@ -20,7 +21,7 @@
             {% if message.author.username == 'botty' %}Asistente IA{% else %}{{ message.author.profile.name }}{% endif %}
         </p>
         <div class="bg-[#2a2a2a] text-stone-100 rounded-[22px] rounded-bl-[6px] px-4 py-2.5 text-sm leading-relaxed shadow-sm border border-stone-700/40 break-words">
-            <span class="whitespace-pre-wrap">{{ message.body }}</span>
+            <span class="whitespace-pre-wrap">{{ message.body|markdown_bold }}</span>
         </div>
     </div>
 </li>

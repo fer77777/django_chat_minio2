@@ -103,8 +103,8 @@ PREGUNTA: {pregunta}"""
                             texto = partes[-1] if len(partes) > 1 else texto
                         return texto
                     
-                    # Si el content vino vacío o truncado por reasoning, no mostrar el reasoning en inglés
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Error consultando modelo {modelo}: {e}")
             continue
 
     # Si OpenRouter está saturado o da rate limit (429), responder con Ollama local de inmediato
@@ -113,6 +113,7 @@ PREGUNTA: {pregunta}"""
 
 def _fallback_ollama_local(pregunta: str) -> str:
     """Fallback directo a Ollama local con parámetros optimizados de velocidad."""
+    error_detalle = ""
     try:
         inventario_json = _obtener_inventario_json()
         prompt_completo = f"{SYSTEM_PROMPT_INVENTARIO}\n\nINVENTARIO:\n{inventario_json}\n\nPREGUNTA:\n{pregunta}"
@@ -127,11 +128,14 @@ def _fallback_ollama_local(pregunta: str) -> str:
                 "num_ctx": 1024,
                 "temperature": 0.1,
             }
-        }, timeout=45)
+        }, timeout=15)
 
         if response.status_code == 200:
             return response.json().get("response", "").strip()
+        else:
+            error_detalle = f"Ollama HTTP {response.status_code}: {response.text}"
     except Exception as exc:
+        error_detalle = f"Sin conexión a Ollama local ({exc})"
         logger.warning(f"Ollama local no disponible: {exc}")
 
     return "No encontré información suficiente en el inventario para responder esa pregunta."

@@ -1,3 +1,4 @@
+{% load chat_filters %}
 {% if message and not widget_mode %}
 {# Mensaje del usuario — solo en modo página completa; en el widget ya lo muestra el JS #}
 <li class="flex justify-end px-2">
@@ -20,7 +21,7 @@
     <div class="max-w-[78%] sm:max-w-[65%]">
         <p class="text-[10px] text-amber-300/70 font-semibold mb-1 px-1">Asistente IA</p>
         <div class="bg-[#2a2a2a] text-stone-100 rounded-[22px] rounded-bl-[6px] px-4 py-2.5 text-sm leading-relaxed shadow-sm border border-amber-900/30 break-words">
-            <span class="whitespace-pre-wrap">{{ message2.body }}</span>
+            <span class="whitespace-pre-wrap">{{ message2.body|markdown_bold }}</span>
         </div>
     </div>
 </li>
