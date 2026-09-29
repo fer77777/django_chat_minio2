@@ -1,10 +1,10 @@
-# Actividad 5 - Programación IV: Sistema de Gestión de Inventario con CRUD e Integración de IA Local Mediante Ollama
+# Entregable Final - Programación IV: Sistema de Gestión de Inventario con CRUD e Integración de IA Local Mediante Ollama, Asistido por OpenCode
 
 **Estudiante:** Fernando Carlos Carrasco Condori  
 **Asignatura:** Programación IV  
 **Docente:** Ing. de la Materia  
-**Fecha:** 28 de Septiembre  
-**Entorno de desarrollo:** Python 3.12, Django 5.2, Ollama 0.34.4, SQLite, VS Code  
+**Fecha de Entrega:** 19 de Octubre  
+**Entorno de desarrollo:** Python 3.12, Django 5.2, Ollama 0.34.4, SQLite, VS Code, OpenCode  
 
 ---
 
@@ -200,7 +200,7 @@ success
 ```
 
 ### 2.2 Servicio de Integración entre Django y Ollama
-La comunicación entre Django y la API local de Ollama (`http://localhost:11434/api/generate`) la implementé en el módulo `a_rtchat/openrouter_service.py` dentro de la función `_fallback_ollama_local`.
+La comunicación entre Django y la API local de Ollama (`http://localhost:11434/api/generate`) la implementé en el módulo de servicio de IA (`a_rtchat/openrouter_service.py`) mediante la función `consultar_ollama_local` (gestionada con fallback robusto `_fallback_ollama_local`), desacoplando la inferencia de las vistas de Django bajo el Patrón Strategy.
 
 El flujo que programé funciona de la siguiente manera:
 1. Django recibe la pregunta que el usuario escribió en el chat.
@@ -345,21 +345,56 @@ Todas las 9 pruebas pasaron con éxito garantizando la solidez del sistema.
 Para facilitar el despliegue del proyecto por parte del docente o cualquier evaluador, generé los archivos estándar requeridos:
 - **`requirements.txt`**: Contiene la lista limpia de librerías utilizadas (Django, django-htmx, requests, python-dotenv, ollama).
 - **`.env.example`**: Archivo de ejemplo que documenta todas las variables de entorno necesarias (`DJANGO_SECRET_KEY`, `AI_PROVIDER`, `OLLAMA_BASE_URL`, `OLLAMA_CHAT_MODEL`) sin exponer datos sensibles.
-- **`DOCUMENTACION_CHOCOLATES.md`**: Manual técnico con las decisiones de arquitectura y comandos para poblar la base de datos de prueba.
+- **`DOCUMENTACION.md`**: Manual técnico con las decisiones de arquitectura, modelo de datos y comandos para poblar la base de datos de prueba.
+- **`OPENCODE.md`**: Registro formal de las sesiones de asistencia en codificación realizadas con el agente OpenCode.
+
+---
+
+## Punto 4: Uso de OpenCode en el Desarrollo (30 pts)
+
+En conformidad con las indicaciones del Entregable Final, el desarrollo del sistema fue asistido por **OpenCode**, agente de codificación de inteligencia artificial ejecutado en entorno de terminal.
+
+### 4.1 Sesiones de Trabajo y Prompts Ejecutados
+A lo largo de las sesiones de laboratorio se interactuó con OpenCode mediante la interfaz CLI/TUI para las siguientes tareas principales (detalladas en el archivo `OPENCODE.md`):
+
+1. **Generación del Modelo `Producto`:**
+   - Prompt: `opencode run "Crea el modelo Producto en productos/models.py con 10 campos para chocolatería gourmet, validando código único y precios no negativos..."`
+   - Resultado: Estructura del modelo con campos `PositiveIntegerField`, `MinValueValidator` y enumeración `CategoriaChocolate`.
+
+2. **Lógica de los 5 Reportes Analíticos:**
+   - Prompt: `opencode run "Genera en productos/views.py una función reportes_panel() que calcule stock crítico, métricas de precio (Max, Min, Avg) y valoración monetaria por categoría..."`
+   - Resultado: Implementación optimizada mediante agregaciones del ORM de Django (`aggregate` y `annotate`).
+
+3. **Construcción del Servicio de Integración con Ollama:**
+   - Prompt: `opencode run "Crea una función que serialice el inventario a JSON y envíe la consulta a http://localhost:11434/api/generate con restricción de respuestas..."`
+   - Resultado: Función `_obtener_inventario_json()` y conector con control de excepciones y timeout.
+
+4. **Automatización de Pruebas Unitarias:**
+   - Prompt: `opencode run "Escribe pruebas unitarias exhaustivas en productos/tests.py para unicidad de código, precio no negativo y reportes..."`
+   - Resultado: 9 casos de prueba ejecutados exitosamente con `python manage.py test`.
+
+### 4.2 Impacto de OpenCode en el Proyecto
+El uso de OpenCode optimizó el flujo de trabajo en tres aspectos fundamentales:
+- **Reducción de errores sintácticos:** Aceleró la escritura inicial del MVT de Django y el manejo de formularios.
+- **Calidad y Cobertura de Pruebas:** Permitió formular escenarios de prueba rigurosos para validar los límites numéricos de precios y existencias.
+- **Intervención y Criterio del Desarrollador:** OpenCode actuó como copiloto técnico; la lógica de negocio artesanal, la arquitectura de fallback de IA, la persistencia en SQLite y el diseño del frontend con TailwindCSS y HTMX fueron refinados y supervisados directamente por el estudiante.
 
 ---
 
 ## Conclusiones y Reflexión Técnica
 
-Durante el desarrollo de esta actividad comprendí la importancia de desacoplar la lógica de administración de datos tradicional (CRUD) respecto a los modelos de inteligencia artificial.
+Durante el desarrollo de este entregable final comprendí la importancia de desacoplar la lógica de administración de datos tradicional (CRUD) respecto a los modelos de inteligencia artificial.
 
 Uno de los principales retos que enfrenté fue el consumo de recursos al ejecutar modelos de lenguaje en una máquina local. Inicialmente probé modelos más pesados que saturaban la memoria RAM y tardaban más de un minuto en responder. Al adoptar `qwen2.5:1.5b` y crear un modelo personalizado con `Modelfile`, logré un equilibrio entre velocidad de respuesta y respeto estricto de las restricciones del sistema.
 
-Asimismo, aprendí a estructurar la información del inventario en formato JSON compacto antes de inyectarla al contexto del modelo, lo que permitió que la IA responda con datos reales de la base de datos sin inventar información.
+Asimismo, la experiencia de pair programming con el agente OpenCode demostró que las herramientas de IA asistida son altamente eficaces para elevar la productividad y la calidad del software, siempre que el desarrollador mantenga un estricto control sobre la arquitectura y la validación de los datos.
 
 ---
 
-## Citas y Referencias
-- Documentación oficial de Django (Modelos, Vistas y Formularios): https://docs.djangoproject.com/en/5.2/
-- Documentación oficial de Ollama y Modelfiles: https://github.com/ollama/ollama/blob/main/docs/modelfile.md
-- Guía de modelos Qwen 2.5: https://ollama.com/library/qwen2.5
+## Referencias (Formato APA 7)
+
+- Django Software Foundation. (2024). *Django documentation (Version 5.2)*. https://docs.djangoproject.com/
+- Ollama. (2024). *Ollama: Get up and running with large language models locally*. https://ollama.com/
+- OpenCode Contributors. (2024). *OpenCode: Open-source terminal AI coding agent*. https://github.com/opencode/opencode
+- Qwen Team. (2024). *Qwen2.5: A comprehensive series of large language models*. Alibaba Cloud. https://ollama.com/library/qwen2.5
+
