@@ -8,6 +8,15 @@
 
 ---
 
+### Vinculación con Ejes Transversales y ODS
+- **Tecnologías Emergentes y Adaptabilidad Digital:** Demostración práctica de integración de modelos de lenguaje locales (Ollama) y agentes de terminal (OpenCode) en una arquitectura web moderna con Django.
+- **Investigación y Pensamiento Crítico:** Evaluación comparativa de modelos de inferencia, control estricto de contexto (Grounding) para evitar alucinaciones y análisis de rendimiento en CPU.
+- **ODS 4 (Educación de Calidad):** Desarrollo autónomo de habilidades avanzadas de programación web y aplicación de inteligencia artificial local.
+- **ODS 8 (Trabajo Decente y Crecimiento Económico):** Digitalización de procesos comerciales y de inventario para emprendimientos locales artesanales.
+- **ODS 9 (Industria, Innovación e Infraestructura):** Uso exclusivo de herramientas de código abierto (Django, Ollama, OpenCode, SQLite) que promueven soluciones soberanas y accesibles sin costos de licencia.
+
+---
+
 ## Punto 1: Diseño e Implementación del CRUD (30 pts)
 
 ### 1.1 Definición de la Entidad y Modelo de Datos
